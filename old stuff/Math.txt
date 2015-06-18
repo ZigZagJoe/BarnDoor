@@ -1,0 +1,35 @@
+Generally, RPM must decrease over time to maintain the same angular velocity. A graph is provided (RPM over 1hr.png). Looking at "dimensioned drawing.jpg" should also help.
+
+The math honestly is not too scary - it's just the law of cosines. The derivative of the law of cosines is used to calculate the initial rate, but after that it's just law of cosines and some brute force. Here's the relevant functions from the source:
+
+Side A is the distance from the pivot of the drive screw to the hinge. Side B is the distance from the pivot of the stepper to the hinge. The starting angle, S, is a combination of the static angles from the board to the pivots and then the angle between the two boards. These are the most important factors. 
+
+Measuring them isn't too bad - just measure the distance from the board to the pivot point for both top and bottom, then measure the length along the board to the hinge. Use the pythagorean theorem to calculate the side length. The static angles can be calculated using the arctangent function. Or, use technology to do it for you: http://www.calculator.net/triangle-calculator.html
+
+Once you have the lengths of sides A and B (look at the dimensioned drawing!) and their angles, then all that is left to do is measure the angle fully rewound. Pick a point on the top board and the bottom board, then measure between them, and from each point to the pivot. Then, do arctan(dist to top board/dist to hinge). Ensure your result is in degrees.  Now take that angle and the static angles from the base boards to their respective pivot, and you have angle S (starting angle). Look at the drawing!
+
+Here's the functions:
+
+When given the angle between sides A and B, this returns the length of side C (which is directly opposite the angle). In a barn door tracker, this would be the length of the drive rod between the two pivots. 
+
+long double length(long double angle) {
+    return sqrt(pow(A,2) + pow(B,2)-2*A*B*cos(angle));
+}
+
+This gives the angle opposite side C, with A and B being known values
+
+long double angle(long double C) {
+    return acos((pow(A,2) + pow(B,2) - pow(C,2)) / (2*A*B));
+}
+
+This gives the rate of change at time t, with V being the desired tracking rate, S the starting angle, and A and B the two sides of the triangle
+
+// derivative of law of cosines SAS case
+long double ddt(long double t) {
+    return (A*B*V*sin(t*V+S))/
+    (sqrt(-2*A*B*cos(t*V+S)+pow(A,2)+pow(B,2)));
+}
+
+Main code is pretty simple: it selects the most accurate delay at time 0, then every $interval steps it calculates if error is reduced by slowing down, speeding up, or keeping the speed the same, and uses the relevant delay value. Repeat until $MAX_TIME is reached.  
+
+Look at the code, it's not too bad.

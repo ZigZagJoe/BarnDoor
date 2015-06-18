@@ -1,0 +1,21 @@
+
+(Full JPG (4mb))[http://ridetheclown.com/downloads/BarnTracker/Pictures/FirstLightFinal.jpg] | (Original TIFF (170mb))[http://ridetheclown.com/downloads/BarnTracker/Pictures/FirstLightRaw.tif]
+
+**Parameters**
+    14x60s
+    ISO 800, Highlight Tone Priority
+    250mm, f/8
+
+**Equipment**
+    Canon EOS M + EF-M to EF adapter
+    EF-S 55-250mm f/4-f/5.6 IS STM
+    [YA Barn Door Tracker](http://ridetheclown.com/downloads/BarnTracker/)
+
+Stacked with DeepSkyStacker Beta
+Processed in Adobe Photoskerp Lightroom 5
+
+So. Here we are, first light with my finished barn door mount, and gotta say, I'm seriously pleased, even if M42 is low hanging fruit. It was cold as balls (Austin, TX), and alignment was a pain in the ass, but it looks like it was worth it. [I've also compiled the tracker build details into a nice web page](http://ridetheclown.com/downloads/BarnTracker/); [here's the original reddit post](http://www.reddit.com/r/astrophotography/comments/1vx4vy/yet_another_barn_door_tracker_build_album/).
+
+DSS I pretty much threw RAW images at and let it work. Need to play with it more, haven't done this sort of thing before. Tried to process DSS's output in plain photoskerp cs3 first, but I don't have much experience with processing photos in it. Result was a little hideous but it showed potential was there. Imported the original into LR and worked on it there, which worked much better. Did use photoskerp to remove a tiny amount of star elongation, though. Alignment is a real pain at this focal length...
+
+I also got some nice long exposures with the my favorite lens, the EF-M 22mm F/2, to play with; they came out way better than I expected for being in a light polluted area. Gotta drive a bit for a real go at it - maybe tomorrow!

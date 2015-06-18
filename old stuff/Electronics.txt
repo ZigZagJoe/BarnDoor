@@ -1,0 +1,18 @@
+
+Electronics:
+
+I used a A4988 stepper driver from Pololu, at 1/4 microstepping (selected for max smoothness). Stepper motor is a 7.5/degree bipolar/unipolar motor sourced from an old HP printer. After the worm drive reduction and microstepping, we're looking at 10560 steps per full revolution. A 7805 is used to provide logic power. 
+
+I used a Attiny85 as it was what I had handy, but you could get away with a Attiny25 just fine. My code, with a 548 byte table for 1 hour of running, takes a bit under 1kb of flash. 
+
+Pin 5 is connected to the step input of the A4988, pin 6 is connected to the direction input of the A4988, and pin 7 is connected to the sleep and reset lines of the A4988, as well as the limit switch via a 1.5k resistor. The crystal and its caps occupy pins 2 and 3. Pin 1 (\RESET) is connected to the pushbuttons for user input. An ISP header is also present. 
+
+One reset switch is located on the breadboard, the other is located on the hinge side of the mount - prevents reaching around and trying to feel the switch.
+
+Entire thing done up on a run-hard-put-away-wet radioshack breadboard that I then mounted on the underside of the tracker.
+
+You could easily use a bigger uC such as an atmega part (as used in arduinos). You just need a crystal, as the RC oscillator built into an AVR is very temperature sensitive and seriously inconsistent. Arduinos and most other dev boards have one onboard.
+
+Uses about 50-60ma while running forwards or backwards, and about 4ma idle.
+
+The intervalometer/remote is not much more than a transistor, few IR LEDS, attiny, and a few switches. See the circuit diagram for details. I got a third IR LED, salvaged a connector, connected the lot together with some solid core wire, and glued that to the camera part of the ball mount. This allows me to control the EOS M via a wired connection rather than having to reach around with the IR remote or place the remote where it can be seen by the camera's IR receiver.

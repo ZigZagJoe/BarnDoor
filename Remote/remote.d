@@ -1,0 +1,1 @@
+remote.o: remote.cpp

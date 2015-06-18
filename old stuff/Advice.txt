@@ -1,0 +1,17 @@
+If you are going to use a finderscope, don't try to skimp and use a cheap rifle scope. The eye relief on those things is murderous - the required distance from scope to eye, and the image is rather dim. So basically, I couldn't tell when my eye was in the right place or not because all I saw was black.
+
+An alternative to a finder scope is a reflex sight (no magnification), such as a straw with a crosshair or telerad finder, but be advised that it will be just about useless in an area with light pollution, or if you have shitty eyes (like me).
+
+Initially I had 2+ turns of dead space in the pan axis, but I found that alignment is crucial at longer focal lengths; At 400mm, I have to use the finder scope to get close to the north celestial pole then brute force it the rest of the way by taking exposures and making slight adjustments each time. The dead space was murderous when trying to keep track of how many turns I tweaked, so ended up reinforcing it a lot to get down to about 3/8 of a turn. Could be reduced further with finer threaded rod, but there's no easy way to do it without rebuilding it to use gears and such.
+
+Watch out for the motor power. I fried my poor teensy and a stepper driver by accidentally connecting it to the logic power. You can get lower voltage stepper drivers such as the DRV8834 (the A4988 requires 7-35v).
+
+You can get useful bits of plastic stock by cutting up a milk jug into strips then melting them together with a heat gun. Put a strip down, heat it, put another on top, heat, etc. Apply pressure with something flat like a piece of wood every few strips. The resultant material is very easy to drill, easy to cut with a hacksaw, easy to dremel, pretty much a dream to work with. Very strong, but still with a bit of flex, and has the characteristic slipperiness of HDPE. Plastic bags are made out of the same plastic, but it's a lot harder to reduce them into nice coherent chunks of plastic. It's doable, though.
+
+Don't try to build a ball mount. I tried to improvise one out of some PVC couplings and a wood ball, like others have done, didn't work very well. Even if it had worked the result would have been extremely crude to use without knocking the mount out of alignment, and severely limited elevation-wise, Just pay the 17$ for a solid mount, it's worth it. You get a quick release plate, too.
+
+Stellarium is the shit. Seriously. It's awesome being able to recognize some constellations under your own power. Also, it lets you see where exactly the NCP is relative to polaris - remember to invert the position if using a finder scope.
+
+I'd use particleboard/plywood if I were to do this over (still may do sometime in the future). There's some warping in the wood I used. Price was right, though.
+
+It is a cast iron motherfucker to focus the 55-250mm STM smoothly.

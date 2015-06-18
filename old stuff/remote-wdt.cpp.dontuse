@@ -1,0 +1,122 @@
+/* don't use this - the WDT oscillator is wildly inaccurate and results in exposure times being way off */
+
+#include <avr/io.h>
+#include <avr/sleep.h>
+#include <avr/wdt.h>
+#include <avr/interrupt.h>
+#include <util/delay.h>
+
+#define bv(BIT) (1 << BIT)
+#define bset(X,BIT) (X |= bv(BIT))
+#define bclr(X,BIT) (X &= ~bv(BIT))
+#define bisset(X,BIT) (X & bv(BIT))
+
+// This will act as an intervalometer or a simple remote.
+// It should be compatible with anything that works with the canon RC-6 remote
+
+// Pressing the momentary tactile switch causes just the initial shot pulse to be sent as the user presumably releases the switch.
+// If the SPST switch is turned on, then ~60 seconds later a pulse is sent to terminate the exposure, and then 2 seconds later the program loops and sends a new shot signal. Repeats forever.
+
+// Circuit:
+
+// Two leds in parallel, their anode is connected to pin 8 of the uC (power), and their cathode is connected to the collector input of the NPN transistor.
+// The base of the transistor is connected to the uC pin 5 (port b0) via a 4.7k resistor, and the emitter is connected to ground.
+// A momentary tactile switch is connected to the batteries, and the power pin of the uC. In parallel with the tactile switch is a normal SPST switch.
+// A green LED is connected to the uC's power pin through a resistor, so that when the uC is on, the LED lights up.
+
+/*           ___ ___
+ RESET	B5  -|  o  |- VCC
+ ADC3	B3  -|atiny|- B2   SCK   ADC1
+ ADC2	B4  -|45/85|- B1   MISO
+        GND -|_____|- B0   MOSI
+ */
+
+void send_signal() {
+    // 1 clock, 1 microsecond
+    for (int i = 0; i < 16; i++ ) {
+        bset(PORTB,0);
+         __builtin_avr_delay_cycles(11);
+        bclr(PORTB,0);
+         __builtin_avr_delay_cycles(11);
+    }
+    
+    _delay_us(7600);
+    
+    for (int i = 0; i < 16; i++ ) {
+        bset(PORTB,0);
+         __builtin_avr_delay_cycles(11);
+        bclr(PORTB,0);
+         __builtin_avr_delay_cycles(11);
+    }
+}
+
+EMPTY_INTERRUPT(WDT_vect);
+
+void sleep(uint8_t seconds) {
+    set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+    sleep_enable();
+ 
+    wdt_enable(WDTO_1S);
+    bset(WDTCR, WDIE);
+    
+    asm("sei");
+    
+    for (volatile uint8_t cnt = 0; cnt < seconds; cnt++) {
+        asm("sleep");
+        bset(WDTCR, WDIE); // it gets automatically disabled
+    }
+    
+    sleep_disable();
+    
+    MCUSR = 0;
+    wdt_disable();
+}
+
+int main (void) {
+
+    // enable pull ups
+    bset(PORTB, 1);
+    bset(PORTB, 2);
+    bset(PORTB, 3);
+    bset(PORTB, 4);
+    
+    _delay_ms(10); // debounce
+    
+    // this is a really inefficent way to do it, but i had the free I/Os
+    // and a 4 position switch.
+    // all pull ups are enabled, and each pin of the switch is connected to a seperate IO
+    // could have left one unconnected and detected that position by the absense of a value. Oh well.
+    
+    // read the delay
+   
+    uint16_t delay = 3;
+    
+    if (!bisset(PINB,4)) // position 1
+        delay = 6;
+    
+    if (!bisset(PINB,3)) // position 2
+        delay = 12;
+    
+    if (!bisset(PINB,1)) // position 3
+        delay = 18;
+    
+    if (!bisset(PINB,2)) // position 4
+        delay = 30;
+    
+    PORTB = 0; // disable pull ups
+    
+    // enable output
+    bset(DDRB, 0);
+    
+    while(true) {
+        send_signal();
+        
+        sleep(delay);
+
+        send_signal();
+        sleep(2); // wait for camera to recover its wits
+        
+        while(true);
+    }
+}
+

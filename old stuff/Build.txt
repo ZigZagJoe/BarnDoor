@@ -1,0 +1,28 @@
+Fabrication:
+
+Tools: I used a dremel, drill press, and a variety of hand tools to make the mount.
+
+Basic construction: Cut two 14in boards off the plank, and two 7 inch boards. Drill a large hole (or cut a slot) in one end of the 14 inch boards, put half of the piano hinge at the other side. Drill a nice big hole through each of the 7 inch boards, put a bolt through it with washers on top, bottom, and in-between boards. Piano hinge at one side of the upper 7in board, to the bottom of the mount. If you don't have a tripod with adjustments, you could get away without making a pan adjustment, but you'd still need to make something to hold it up.
+
+Finderscope bracket: Mounted by drilling a single hole in it and running a screw through it. A receiver for the metal tab thingie was dremeled out of the metal it's mounted on. A more elegant solution would be to purchase a proper dovetail receiver, but this works well too. Sighted in the scope by making a reflex sight out of a straw and some thread, then taped to hinge and sighted it in during the day.
+
+Limit switch: Wire soldered to penny and penny superglued to base. A small bolt was run through the top board and a wire connected to it, altogether forming the limit switch used for rewinding. One side connected to ground, other to pin 7 of the attiny85 via a 1.5k resistor. A microswitch would work just as well, if you have one handy. Probably a better idea, honestly.
+
+Elevation axis bottom: Bottom mount was created out of plastic bag material rather than milk jugs. Recommend milk jugs, plastic bags are a lot harder to melt down into a nice chunk of plastic stock. It's the same kind of plastic, though. Two nuts are held by the metal strap against the plastic.
+
+Elevation axis top: This is where the milk jug came in. Over a few design iterations, I found a plastic washer gave a nice smooth adjustment against the original metal mounting, rather than gritty nasty metal on metal contact. However, there was still some flex in the bodged up metal support, and the plastic washer was fiddly - it was possible to knock the mount out of alignment by lifting the board up slightly and having the washer settle in a different manner. So, I tried to find a chunk of a similar plastic (HDPE) that I could make a new, stronger mount out of. Failed. Despaired. Decided to try melting milk jug fragments together. Eventually succeeded with the help of a hot air gun, and made a nice 1/4in thick slab of plastic. Cut it down, drilled a few holes in it and stuck it on. No flex and silky smooth movement. Very strong.
+
+Pan axis: Two board chunks are mounted with one big bolt with a washer between the boards. Nylock nut. Bolt is cinched up pretty tight to provide resistance to turning. Receiver of the rod (near the hinge) was made out of another chunk of milk jug derived plastic. Went through about 5 different designs trying to make a good pivot design. It had to be way overbuilt to reduce slop in the adjustment, otherwise the mounting would push away/pull towards the fixed bit. Besides offending sensibilities, it added a lot of slop to the adjustment. After reinforcement, I ended up with about 3/8 of a turn of dead space when changing direction, can't make it much better without changing the design entirely. 
+
+Pan axis pivot nut: This was a normal nut that I dremeled down to have two lugs, which fit nicely into the holes of mecanno stuff. 
+
+The mecanno metal strips are sold by lowes as furniture repair strips. Note, the stuff lowes' sells is really brittle but strong; if you are going to bend it, don't bend it sharply, it will just snap. It's pretty cheap, and cuts fine with tin snips, or even medical shears.
+
+Mount drive pivot nut: tacked 3 nuts together with solder, then stuck two machine screws on the middle nut with superglue. Slathered the lot with JB weld. Two vex parts are used for the pivot, but you could use carefully bent mecanno strips too.
+
+Servo drive: In one of the printer carcasses, a stepper was set up with a worm gear already and a gear to drive. Removed assembly from printer, cut off extra bits of plastic,  opened one side of the gear bit, screwed the threaded rod into the gear, and mounted it on a pivot made out of some plastic bits from a VEX set. Yes, that easy. Stepper is a bipolar/unipolar type, don't know more about it aside from stepping 7.5 degrees per step and a coil resistance of approximately 76 ohms. Worm drive is a 55:1 reduction. Overall, a serious score; possibly wouldn't have even made this mount if not for finding it. 
+
+Meade tripod: Was dreading the idea of having to buy a real tripod, then realized I had the tripod for my old ETX-70 telescope. Not ideal, but it's fairly sturdy, with the addition of a 8lb brick (and 4lb battery) hanging off some paracord underneath it. The telescope mounted by two threaded inserts in its base; I drilled two large holes at the appropriate spots in the bottom bit of wood, forced a nut in there with superglue, and superglued a large washer over each. 3 furniture feet were stuck on to the base of the mount; done. Prior to this, I was planning on making a stand out of some PVC. 
+
+Ball mount: Seriously, just buy one. I tried to improvise one out of some PVC couplings and a wood ball, but even if it had worked the result would have been extremely crude to use, especially without knocking it out of alignment, and severely limited elevation-wise, Just pay the 17$ for a solid mount, it's worth it, especially with the quick release plate. I glued an IR LED and a connector on the top of mine and connected it to the remote/intervalometer, to allow me to control the camera as if it were wired to a remote.
+

@@ -1,0 +1,19 @@
+I've always liked astrophotography but it was so expensive to get into, beyond the level of pointing a wide angle lens at the sky and letting er rip. I read about barn door trackers once, thought it was a really clever idea, very interested in building one. But, the type two tracker required a lot of relatively fine fabrication that I wasn't too sure about, so pretty much forgot about it. Then, I saw the cloudbait observatory tracker… an elegant solution, to control error by varying drive speed than fiddly mechanical stuff.
+
+Tried and failed to make sense of the cloudbait excel spreadsheet, decided to try anyways. Started looking through my stuff, and found the stepper and its worm drive, a serious score. Ordered the mount and driver, made a pivot for the stepper, then made the pivot nut, then bought some wood, blah, blah, work, and then I made this tracker dingus.
+
+It's an isosceles-type barn door tracker with limited pan and elevation adjustments. An attiny85 is the brains of the operation, running off a precalculated table for step rate vs. time. Checked the angle over time; it's dead on even up to the hour mark.
+
+1 hour of runtime (could be increased)
+-12 to +42 degrees pan adjustment 
++21 to +62 degrees elevation adjustment
+Approx 5 days of runtime on 7ah battery.
+Theoretically less than 0.005 arc second error
+
+Operation:
+
+On power on, it will rewind at 7.1x rate until the limit switch is hit, at which point it advances slightly then waits for the user to press the button, at which point it will run forward at the sidereal rate. If the button is pressed again, it will rewind again, and so on. Button presses while rewinding do nothing except pause it while button is held. Pretty much foolproof.
+
+I also made an remote/intervalometer out of another attiny85 to operate my camera, which you can see in the first picture. It should work for any canon camera that works with the canon RC-6 remote. Source and diagram in the zip.
+
+Unfortunately, I've been cursed with clouds just as I've finished up the third and final revision, so I don't have any pictures that are worth putting up just yet. Things were looking promising on rev two with the lens fully zoomed @250mm, or 400mm after crop factor. (Not sure if that applies for astrophotography?)

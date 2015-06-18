@@ -1,0 +1,1675 @@
+   1               		.file	"barn.cpp"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               	 ;  GNU C++ (GCC) version 4.7.2 (avr)
+   8               	 ; 	compiled by GNU C version 4.2.1 (Based on Apple Inc. build 5658) (LLVM build 2336.11.00), GMP v
+   9               	 ;  GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+  10               	 ;  options passed:  -imultilib avr25 -MMD barn.d -MQ barn.o
+  11               	 ;  -D F_CPU=20000000L barn.cpp -mmcu=attiny85 -auxbase-strip barn.o -g -Os
+  12               	 ;  -Wall -ffunction-sections -fdata-sections -fverbose-asm -fno-rtti
+  13               	 ;  -fno-enforce-eh-specs -fno-exceptions
+  14               	 ;  options enabled:  -fauto-inc-dec -fbranch-count-reg -fcaller-saves
+  15               	 ;  -fcombine-stack-adjustments -fcommon -fcompare-elim -fcprop-registers
+  16               	 ;  -fcrossjumping -fcse-follow-jumps -fdata-sections -fdebug-types-section
+  17               	 ;  -fdefer-pop -fdevirtualize -fdwarf2-cfi-asm -fearly-inlining
+  18               	 ;  -feliminate-unused-debug-types -fexpensive-optimizations
+  19               	 ;  -fforward-propagate -ffunction-cse -ffunction-sections -fgcse -fgcse-lm
+  20               	 ;  -fgnu-runtime -fguess-branch-probability -fident -fif-conversion
+  21               	 ;  -fif-conversion2 -findirect-inlining -finline -finline-atomics
+  22               	 ;  -finline-functions -finline-functions-called-once
+  23               	 ;  -finline-small-functions -fipa-cp -fipa-profile -fipa-pure-const
+  24               	 ;  -fipa-reference -fipa-sra -fira-share-save-slots
+  25               	 ;  -fira-share-spill-slots -fivopts -fkeep-static-consts
+  26               	 ;  -fleading-underscore -fmath-errno -fmerge-constants
+  27               	 ;  -fmerge-debug-strings -fmove-loop-invariants -fomit-frame-pointer
+  28               	 ;  -foptimize-register-move -foptimize-sibling-calls -fpartial-inlining
+  29               	 ;  -fpeephole -fpeephole2 -fprefetch-loop-arrays -freg-struct-return
+  30               	 ;  -fregmove -freorder-blocks -freorder-functions -frerun-cse-after-loop
+  31               	 ;  -fsched-critical-path-heuristic -fsched-dep-count-heuristic
+  32               	 ;  -fsched-group-heuristic -fsched-interblock -fsched-last-insn-heuristic
+  33               	 ;  -fsched-rank-heuristic -fsched-spec -fsched-spec-insn-heuristic
+  34               	 ;  -fsched-stalled-insns-dep -fshow-column -fshrink-wrap -fsigned-zeros
+  35               	 ;  -fsplit-ivs-in-unroller -fsplit-wide-types -fstrict-aliasing
+  36               	 ;  -fstrict-overflow -fstrict-volatile-bitfields -fthread-jumps
+  37               	 ;  -ftoplevel-reorder -ftrapping-math -ftree-bit-ccp
+  38               	 ;  -ftree-builtin-call-dce -ftree-ccp -ftree-ch -ftree-copy-prop
+  39               	 ;  -ftree-copyrename -ftree-dce -ftree-dominator-opts -ftree-dse
+  40               	 ;  -ftree-forwprop -ftree-fre -ftree-loop-if-convert -ftree-loop-im
+  41               	 ;  -ftree-loop-ivcanon -ftree-loop-optimize -ftree-parallelize-loops=
+  42               	 ;  -ftree-phiprop -ftree-pre -ftree-pta -ftree-reassoc -ftree-scev-cprop
+  43               	 ;  -ftree-sink -ftree-slp-vectorize -ftree-sra -ftree-switch-conversion
+  44               	 ;  -ftree-tail-merge -ftree-ter -ftree-vect-loop-version -ftree-vrp
+  45               	 ;  -funit-at-a-time -fverbose-asm -fzero-initialized-in-bss
+  46               	
+  49               		.text
+  50               	.Ltext0:
+ 121               		.section	.text._Z6doStepj,"axG",@progbits,_Z6doStepj,comdat
+ 124               		.weak	_Z6doStepj
+ 126               	_Z6doStepj:
+ 127               		.stabd	46,0,0
+   1:barn.cpp      **** #include <stdlib.h>
+   2:barn.cpp      **** #include <inttypes.h>
+   3:barn.cpp      **** #include <avr/io.h>
+   4:barn.cpp      **** #include <avr/sleep.h>
+   5:barn.cpp      **** #include <avr/pgmspace.h>
+   6:barn.cpp      **** #include <util/delay.h>
+   7:barn.cpp      **** 
+   8:barn.cpp      **** /*
+   9:barn.cpp      ****  
+  10:barn.cpp      ****  BARN DOOR TRACKER, ISOLECES TYPE, AVR CODE
+  11:barn.cpp      ****  2014 ZZJ
+  12:barn.cpp      ****  
+  13:barn.cpp      ****  
+  14:barn.cpp      ****  *** AS USED IN THIS APPLICATION ***
+  15:barn.cpp      ****         ___ ___
+  16:barn.cpp      ****  RESET -|  o  |- VCC
+  17:barn.cpp      ****  OSC1  -|atiny|- RESET
+  18:barn.cpp      ****  OSC2  -|45/85|- DIRECTION
+  19:barn.cpp      ****  GND   -|_____|- STEP
+  20:barn.cpp      ****  
+  21:barn.cpp      ****  RESET: Connected to SLEEP, RESET lines of A4988 stepper driver
+  22:barn.cpp      ****  Connected to limit switch via 1.5k resistor (switch connected to ground)
+  23:barn.cpp      ****  Pulled up via 10k resistor.
+  24:barn.cpp      ****  
+  25:barn.cpp      ****  DIRECTION: Connected to DIRECTION line of A4988 stepper driver
+  26:barn.cpp      ****  STEP: Connected to STEP line of A4988 stepper driver
+  27:barn.cpp      ****  
+  28:barn.cpp      ****  OSC1: Connected to 20mhz crystal and ground via 18pf ceramic capacitor
+  29:barn.cpp      ****  OSC2: Connected to 20mhz crystal and ground via 18pf ceramic capacitor
+  30:barn.cpp      ****  
+  31:barn.cpp      ****  RESET: Connected to momentary SPST switch (switch connected to ground)
+  32:barn.cpp      ****  
+  33:barn.cpp      ****  Fuse bits: 0xFF, 0xDE, 0xFF (RESET enabled, external crystal, long power up)
+  34:barn.cpp      **** 
+  35:barn.cpp      ****  ##### USER INTERFACE ####
+  36:barn.cpp      ****  
+  37:barn.cpp      ****  Control is simple: the reset pin (1).
+  38:barn.cpp      ****  
+  39:barn.cpp      ****  On power applied, state var will not be REWIND_NOT_REQUIRED_MAGIC, so a rewind will be executed.
+  40:barn.cpp      ****  
+  41:barn.cpp      ****  When rewind is completed, state will be set to REWIND_NOT_REQUIRED_MAGIC.
+  42:barn.cpp      ****  
+  43:barn.cpp      ****    If the uC is reset without losing power after a rewind, the value in state will
+  44:barn.cpp      ****  be not have been cleared, and it will proceed to run normally after clearing state.
+  45:barn.cpp      ****  A reset while running would cause it to begin rewinding.
+  46:barn.cpp      ****  
+  47:barn.cpp      ****    In short, when power is hooked up, the tracker will rewind until it hits the limit
+  48:barn.cpp      ****  switch, it will advance off the limit switch, and then go to sleep. At some point 
+  49:barn.cpp      ****  the user hits the reset button, and it will run forwards at the sidereal rate. A 
+  50:barn.cpp      ****  reset while running or power loss would cause another rewind, and so on.
+  51:barn.cpp      ****  
+  52:barn.cpp      ****    You really want a crystal for this application, as the RC oscillator is A. wildly
+  53:barn.cpp      ****  inaccurate and B. highly temperature sensitive. The value doesn't matter, just as 
+  54:barn.cpp      ****  long as you have a calibrated delay loop. It's somewhat less important if you are
+  55:barn.cpp      ****  using longer step delays; I need to step over 10k times a second, so inaccuracy adds up.
+  56:barn.cpp      ****  */
+  57:barn.cpp      **** 
+  58:barn.cpp      **** #define bv(BIT) (1 << BIT)
+  59:barn.cpp      **** #define bset(X,BIT) (X |= bv(BIT))
+  60:barn.cpp      **** #define bclr(X,BIT) (X &= ~bv(BIT))
+  61:barn.cpp      **** #define bisset(X,BIT) (X & bv(BIT))
+  62:barn.cpp      **** 
+  63:barn.cpp      **** #define delay _delay_ms
+  64:barn.cpp      **** 
+  65:barn.cpp      **** typedef uint8_t byte;
+  66:barn.cpp      **** 
+  67:barn.cpp      **** ////////////////////////////////////////////
+  68:barn.cpp      **** 
+  69:barn.cpp      **** /*
+  70:barn.cpp      ****              ___ ___
+  71:barn.cpp      ****  RESET	B5  -|  o  |- VCC
+  72:barn.cpp      ****  ADC3	B3  -|atiny|- B2   SCK   ADC1
+  73:barn.cpp      ****  ADC2	B4  -|45/85|- B1   MISO
+  74:barn.cpp      ****         GND -|_____|- B0   MOSI
+  75:barn.cpp      ****  
+  76:barn.cpp      **** */
+  77:barn.cpp      **** 
+  78:barn.cpp      **** // lazy arduino-like reads, writes, pinmode
+  79:barn.cpp      **** // pins are indexed by port bit number, see pinout above
+  80:barn.cpp      **** // forced inline as that's more efficient but GCC isn't bright enough to do it under -Os constraint
+  81:barn.cpp      **** 
+  82:barn.cpp      **** #define OUTPUT 1
+  83:barn.cpp      **** #define INPUT 0
+  84:barn.cpp      **** 
+  85:barn.cpp      **** __attribute__((always_inline)) inline bool digitalRead(byte pin) {
+  86:barn.cpp      ****     return bisset(PINB, pin);
+  87:barn.cpp      **** }
+  88:barn.cpp      **** 
+  89:barn.cpp      **** __attribute__((always_inline)) inline void digitalWrite(const byte pin, const byte val) {
+  90:barn.cpp      ****     val ? bset(PORTB, pin) : bclr(PORTB, pin);
+  91:barn.cpp      **** }
+  92:barn.cpp      **** 
+  93:barn.cpp      **** __attribute__((always_inline)) inline void pinMode(const byte pin, const byte mode) {
+  94:barn.cpp      ****     mode ? bset(DDRB, pin) : bclr(DDRB, pin);
+  95:barn.cpp      **** }
+  96:barn.cpp      **** 
+  97:barn.cpp      **** static inline void delayMicroseconds(uint16_t) __attribute__((always_inline, unused));
+  98:barn.cpp      **** static inline void delayMicroseconds(uint16_t usec)
+  99:barn.cpp      **** {
+ 100:barn.cpp      **** #if F_CPU != 20000000L
+ 101:barn.cpp      ****     #error F_CPU != 20mhz. Use a different delayMicroseconds such as http://www.pjrc.com/teensy/bet
+ 102:barn.cpp      **** #endif
+ 103:barn.cpp      ****     asm volatile(
+ 104:barn.cpp      ****                  "sbiw	%A0, 1"			"\n\t"	// 2
+ 105:barn.cpp      ****                  "brcs	L_%=_end"		"\n\t"	// 1
+ 106:barn.cpp      ****                  "breq	L_%=_end"		"\n\t"	// 1
+ 107:barn.cpp      ****                  "lsl	%A0"			"\n\t"	// 1
+ 108:barn.cpp      ****                  "rol	%B0"			"\n\t"	// 1
+ 109:barn.cpp      ****                  "lsl	%A0"			"\n\t"	// 1
+ 110:barn.cpp      ****                  "rol	%B0"			"\n\t"	// 1
+ 111:barn.cpp      ****       
+ 112:barn.cpp      ****                  "L_%=_loop:"
+ 113:barn.cpp      ****                  "sbiw	%A0, 1"			"\n\t"	// 2
+ 114:barn.cpp      ****                  "nop"                  "\n\t"  // 1
+ 115:barn.cpp      ****                  "brne	L_%=_loop"		"\n\t"	// 2
+ 116:barn.cpp      ****                  // 5 cycles per loop
+ 117:barn.cpp      ****                  "L_%=_end: nop\n"
+ 118:barn.cpp      ****                  : "+w" (usec)
+ 119:barn.cpp      ****                  : "0" (usec)
+ 120:barn.cpp      ****                  );
+ 121:barn.cpp      **** }
+ 122:barn.cpp      **** 
+ 123:barn.cpp      **** /////////////////////////////////////////////////////////////////////////////////
+ 124:barn.cpp      **** 
+ 125:barn.cpp      **** // port pin #s
+ 126:barn.cpp      **** #define RESET 2
+ 127:barn.cpp      **** #define STEP 0
+ 128:barn.cpp      **** #define DIRECTION  1
+ 129:barn.cpp      **** 
+ 130:barn.cpp      **** #define FORWARDS 1
+ 131:barn.cpp      **** #define BACKWARDS 0
+ 132:barn.cpp      **** 
+ 133:barn.cpp      **** const uint32_t REWIND_NOT_REQUIRED_MAGIC = 0xDEADBEEF;
+ 134:barn.cpp      **** 
+ 135:barn.cpp      **** // will not be initialized. used to let uC know if reset was caused by user after successful rewind
+ 136:barn.cpp      **** __attribute__ ((section (".noinit"))) volatile uint32_t state;
+ 137:barn.cpp      **** 
+ 138:barn.cpp      **** // rewinds mount
+ 139:barn.cpp      **** void rewind();
+ 140:barn.cpp      **** 
+ 141:barn.cpp      **** // for faster, non-time-crucial stepping
+ 142:barn.cpp      **** inline void doStep(const uint16_t rate);
+ 143:barn.cpp      **** 
+ 144:barn.cpp      **** // low power sleep mode, waiting for user reset
+ 145:barn.cpp      **** void reset_sleep();
+ 146:barn.cpp      **** 
+ 147:barn.cpp      **** /////////////////////////////////////////////////////////////////////////////////
+ 148:barn.cpp      **** 
+ 149:barn.cpp      **** // byte format:
+ 150:barn.cpp      **** // bit: 7 8 6 5 4 3 2 1 0
+ 151:barn.cpp      **** //      [  interval   ] C
+ 152:barn.cpp      **** // interval: nr of intervals until next update
+ 153:barn.cpp      **** // C: 1 add one to delay, 0 subtract one from delay
+ 154:barn.cpp      **** 
+ 155:barn.cpp      **** // 1 will be subtracted from the initial value to compensate
+ 156:barn.cpp      **** // makes timing perfect with the cycle delays below
+ 157:barn.cpp      **** #define DELAY_TWEAK 1
+ 158:barn.cpp      **** #include "table.h"
+ 159:barn.cpp      **** 
+ 160:barn.cpp      **** const uint16_t quickStepRate = 700; // fast stepping, for rewinding
+ 161:barn.cpp      **** // 100 @ 1/16
+ 162:barn.cpp      **** // 300 @ 1/8
+ 163:barn.cpp      **** // 700 @ 1/4
+ 164:barn.cpp      **** //1500 @ 1/2
+ 165:barn.cpp      **** //3200 @ 1
+ 166:barn.cpp      **** // 7.1 RPM
+ 167:barn.cpp      **** // any faster and it's possible that it can get stuck unable to step
+ 168:barn.cpp      **** // YMMV
+ 169:barn.cpp      **** 
+ 170:barn.cpp      **** int main(void) {
+ 171:barn.cpp      ****     _delay_ms(10); // debounce
+ 172:barn.cpp      **** 
+ 173:barn.cpp      **** 	pinMode(STEP, OUTPUT);
+ 174:barn.cpp      ****     pinMode(DIRECTION, OUTPUT);
+ 175:barn.cpp      ****     pinMode(RESET, INPUT);
+ 176:barn.cpp      ****     
+ 177:barn.cpp      ****     digitalWrite(DIRECTION, FORWARDS);
+ 178:barn.cpp      ****     
+ 179:barn.cpp      ****     if (state != REWIND_NOT_REQUIRED_MAGIC)
+ 180:barn.cpp      ****         rewind(); // never return
+ 181:barn.cpp      ****     
+ 182:barn.cpp      ****     state = 0; // mark as reset required
+ 183:barn.cpp      ****  
+ 184:barn.cpp      ****     uint16_t delay = baseval;
+ 185:barn.cpp      ****     uint8_t counter = 0;
+ 186:barn.cpp      ****     uint16_t table_pos = 0;
+ 187:barn.cpp      ****     uint8_t skip = first_update;
+ 188:barn.cpp      ****     
+ 189:barn.cpp      ****     while(true) {
+ 190:barn.cpp      ****         bset(PORTB, STEP);
+ 191:barn.cpp      ****         _delay_us(100);
+ 192:barn.cpp      ****         bclr(PORTB, STEP);
+ 193:barn.cpp      ****         delayMicroseconds(delay);
+ 194:barn.cpp      **** 
+ 195:barn.cpp      ****         if (!(++counter)) {
+ 196:barn.cpp      ****             if (skip > 1) { // it's not time to read new tweak value yet
+ 197:barn.cpp      ****                 skip--;
+ 198:barn.cpp      ****                 __builtin_avr_delay_cycles(13 - 3); // above code uses 3 cycles
+ 199:barn.cpp      ****                 continue;
+ 200:barn.cpp      ****             }
+ 201:barn.cpp      ****             
+ 202:barn.cpp      ****             if (table_pos < sizeof(offset_table)) {
+ 203:barn.cpp      ****                 skip = pgm_read_byte((uint16_t)offset_table + table_pos);
+ 204:barn.cpp      ****                 delay += (skip & 1) ? 1 : -1;
+ 205:barn.cpp      ****                 skip = skip >> 1;
+ 206:barn.cpp      ****                 // the above code uses more than 13 cycles, so don't delay at all
+ 207:barn.cpp      ****             } else
+ 208:barn.cpp      ****                 reset_sleep();
+ 209:barn.cpp      ****             
+ 210:barn.cpp      ****             table_pos++;
+ 211:barn.cpp      ****         } else
+ 212:barn.cpp      ****             __builtin_avr_delay_cycles(13);
+ 213:barn.cpp      ****         // this and a uS off the base delay to make the pulse length just right @ 1/4 stepping
+ 214:barn.cpp      ****         // THIS WILL REQUIRE ADJUSTMENT FOR OTHER CLOCKS
+ 215:barn.cpp      ****         
+ 216:barn.cpp      ****     }
+ 217:barn.cpp      ****     
+ 218:barn.cpp      **** 	return 0;
+ 219:barn.cpp      **** }
+ 220:barn.cpp      **** 
+ 221:barn.cpp      **** void rewind() {
+ 222:barn.cpp      ****     
+ 223:barn.cpp      ****     digitalWrite(DIRECTION, BACKWARDS);
+ 224:barn.cpp      ****     
+ 225:barn.cpp      ****     pinMode(RESET, INPUT);
+ 226:barn.cpp      ****     digitalWrite(RESET, 0); // pullup off
+ 227:barn.cpp      ****     
+ 228:barn.cpp      ****     // run backwards at max speed until reset goes low via limit switch
+ 229:barn.cpp      ****     while(digitalRead(RESET))
+ 230:barn.cpp      ****         doStep(quickStepRate);
+ 231:barn.cpp      ****     
+ 232:barn.cpp      ****     // now advance forward enough to cause reset to be unasserted
+ 233:barn.cpp      ****     digitalWrite(DIRECTION, FORWARDS);
+ 234:barn.cpp      ****     
+ 235:barn.cpp      ****     do {
+ 236:barn.cpp      ****         // override the limit switch and step forwards
+ 237:barn.cpp      ****         pinMode(RESET, OUTPUT);
+ 238:barn.cpp      ****         digitalWrite(RESET, 1);
+ 239:barn.cpp      ****         _delay_ms(10); // wait for stepper driver to reactivate
+ 240:barn.cpp      ****         
+ 241:barn.cpp      ****         for (int i = 0; i < 8; i++) // smaller the number, more consistant the return position but 
+ 242:barn.cpp      ****             doStep(quickStepRate * 1.3); // slower RPM as more torque is required going up (stepper
+ 243:barn.cpp      ****         
+ 244:barn.cpp      ****         pinMode(RESET, INPUT);
+ 245:barn.cpp      ****         digitalWrite(RESET, 0);
+ 246:barn.cpp      ****         _delay_ms(1); // allow input to settle
+ 247:barn.cpp      ****     } while(!digitalRead(RESET));
+ 248:barn.cpp      ****     
+ 249:barn.cpp      ****     // advance a little more so that we can't rest on the limit switch
+ 250:barn.cpp      ****     pinMode(RESET, OUTPUT);
+ 251:barn.cpp      ****     digitalWrite(RESET, 1);
+ 252:barn.cpp      ****     
+ 253:barn.cpp      ****     for (int i = 0; i < 750; i++)
+ 254:barn.cpp      ****         doStep(quickStepRate * 1.3);
+ 255:barn.cpp      ****     
+ 256:barn.cpp      ****     /* okay, reset is done. enter a power saving state, waiting for user input (uC reset) */
+ 257:barn.cpp      ****     state = REWIND_NOT_REQUIRED_MAGIC;
+ 258:barn.cpp      ****     
+ 259:barn.cpp      ****     reset_sleep();
+ 260:barn.cpp      **** }
+ 261:barn.cpp      **** 
+ 262:barn.cpp      **** 
+ 263:barn.cpp      **** // very fast stepping for rewinding
+ 264:barn.cpp      **** inline void doStep(const uint16_t rate) {
+ 129               	.LM0:
+ 130               	.LFBB1:
+ 131               	/* prologue: function */
+ 132               	/* frame size = 0 */
+ 133               	/* stack size = 0 */
+ 134               	.L__stack_usage = 0
+ 265:barn.cpp      ****     bset(PORTB, STEP);
+ 136               	.LM1:
+ 137 0000 C09A      		sbi 0x18,0	 ; ,
+ 138               	.LBB68:
+ 139               	.LBB69:
+ 141               	.Ltext1:
+   1:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** /* Copyright (c) 2002, Marek Michalkiewicz
+   2:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    Copyright (c) 2004,2005,2007 Joerg Wunsch
+   3:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    Copyright (c) 2007  Florin-Viorel Petrov
+   4:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    All rights reserved.
+   5:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+   6:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    Redistribution and use in source and binary forms, with or without
+   7:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    modification, are permitted provided that the following conditions are met:
+   8:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+   9:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    * Redistributions of source code must retain the above copyright
+  10:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****      notice, this list of conditions and the following disclaimer.
+  11:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+  12:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    * Redistributions in binary form must reproduce the above copyright
+  13:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****      notice, this list of conditions and the following disclaimer in
+  14:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****      the documentation and/or other materials provided with the
+  15:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****      distribution.
+  16:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+  17:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    * Neither the name of the copyright holders nor the names of
+  18:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****      contributors may be used to endorse or promote products derived
+  19:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****      from this software without specific prior written permission.
+  20:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+  21:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  22:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  23:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  24:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  25:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  26:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  27:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  28:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  29:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  30:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  31:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****   POSSIBILITY OF SUCH DAMAGE. */
+  32:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+  33:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** /* $Id: delay.h.in 2251 2011-09-14 08:20:33Z joerg_wunsch $ */
+  34:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+  35:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** #ifndef _UTIL_DELAY_H_
+  36:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** #define _UTIL_DELAY_H_ 1
+  37:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+  38:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** #ifndef __HAS_DELAY_CYCLES
+  39:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** #define __HAS_DELAY_CYCLES 1
+  40:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** #endif
+  41:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+  42:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** #include <inttypes.h>
+  43:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** #include <util/delay_basic.h>
+  44:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** #include <math.h>
+  45:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+  46:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** /** \file */
+  47:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** /** \defgroup util_delay <util/delay.h>: Convenience functions for busy-wait delay loops
+  48:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     \code
+  49:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     #define F_CPU 1000000UL  // 1 MHz
+  50:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     //#define F_CPU 14.7456E6
+  51:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     #include <util/delay.h>
+  52:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     \endcode
+  53:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+  54:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     \note As an alternative method, it is possible to pass the
+  55:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     F_CPU macro down to the compiler from the Makefile.
+  56:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     Obviously, in that case, no \c \#define statement should be
+  57:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     used.
+  58:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+  59:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     The functions in this header file are wrappers around the basic
+  60:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     busy-wait functions from <util/delay_basic.h>.  They are meant as
+  61:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     convenience functions where actual time values can be specified
+  62:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     rather than a number of cycles to wait for.  The idea behind is
+  63:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     that compile-time constant expressions will be eliminated by
+  64:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     compiler optimization so floating-point expressions can be used
+  65:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     to calculate the number of delay cycles needed based on the CPU
+  66:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     frequency passed by the macro F_CPU.
+  67:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+  68:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     \note In order for these functions to work as intended, compiler
+  69:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     optimizations <em>must</em> be enabled, and the delay time
+  70:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     <em>must</em> be an expression that is a known constant at
+  71:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     compile-time.  If these requirements are not met, the resulting
+  72:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     delay will be much longer (and basically unpredictable), and
+  73:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     applications that otherwise do not use floating-point calculations
+  74:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     will experience severe code bloat by the floating-point library
+  75:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     routines linked into the application.
+  76:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+  77:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     The functions available allow the specification of microsecond, and
+  78:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     millisecond delays directly, using the application-supplied macro
+  79:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     F_CPU as the CPU clock frequency (in Hertz).
+  80:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+  81:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** */
+  82:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+  83:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** #if !defined(__DOXYGEN__)
+  84:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** static inline void _delay_us(double __us) __attribute__((always_inline));
+  85:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** static inline void _delay_ms(double __ms) __attribute__((always_inline));
+  86:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** #endif
+  87:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+  88:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** #ifndef F_CPU
+  89:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** /* prevent compiler error by supplying a default */
+  90:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** # warning "F_CPU not defined for <util/delay.h>"
+  91:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** # define F_CPU 1000000UL
+  92:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** #endif
+  93:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+  94:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** #ifndef __OPTIMIZE__
+  95:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** # warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+  96:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** #endif
+  97:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+  98:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) && \
+  99:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****   !defined(__DELAY_BACKWARD_COMPATIBLE__) &&	   \
+ 100:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****   __STDC_HOSTED__
+ 101:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** #  include <math.h>
+ 102:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** #endif
+ 103:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 104:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** /**
+ 105:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    \ingroup util_delay
+ 106:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 107:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    Perform a delay of \c __ms milliseconds, using _delay_loop_2().
+ 108:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 109:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    The macro F_CPU is supposed to be defined to a
+ 110:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    constant defining the CPU clock frequency (in Hertz).
+ 111:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 112:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    The maximal possible delay is 262.14 ms / F_CPU in MHz.
+ 113:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 114:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    When the user request delay which exceed the maximum possible one,
+ 115:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    _delay_ms() provides a decreased resolution functionality. In this
+ 116:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    mode _delay_ms() will work with a resolution of 1/10 ms, providing
+ 117:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    delays up to 6.5535 seconds (independent from CPU frequency).  The
+ 118:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    user will not be informed about decreased resolution.
+ 119:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 120:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    If the avr-gcc toolchain has __builtin_avr_delay_cycles(unsigned long)
+ 121:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    support, maximal possible delay is 4294967.295 ms/ F_CPU in MHz. For
+ 122:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    values greater than the maximal possible delay, overflows results in
+ 123:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    no delay i.e., 0ms.
+ 124:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 125:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    Conversion of __us into clock cycles may not always result in integer.
+ 126:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    By default, the clock cycles rounded up to next integer. This ensures that
+ 127:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    the user gets atleast __us microseconds of delay.
+ 128:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 129:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    Alternatively, user can define __DELAY_ROUND_DOWN__ and __DELAY_ROUND_CLOSEST__
+ 130:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    to round down and round to closest integer.
+ 131:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 132:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    Note: The new implementation of _delay_ms(double __ms) with 
+ 133:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     __builtin_avr_delay_cycles(unsigned long) support is not backward compatible. 
+ 134:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    User can define __DELAY_BACKWARD_COMPATIBLE__ to get a backward compatible delay.
+ 135:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    Also, the backward compatible
+ 136:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    algorithm will be chosen if the code is compiled in a <em>freestanding
+ 137:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    environment</em> (GCC option \c -ffreestanding), as the math functions
+ 138:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    required for rounding are not available to the compiler then.
+ 139:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 140:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****  */
+ 141:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** void
+ 142:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** _delay_ms(double __ms)
+ 143:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** {
+ 144:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	uint16_t __ticks;
+ 145:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	double __tmp ; 
+ 146:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) && \
+ 147:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****   !defined(__DELAY_BACKWARD_COMPATIBLE__) &&	   \
+ 148:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****   __STDC_HOSTED__
+ 149:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	uint32_t __ticks_dc;
+ 150:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	extern void __builtin_avr_delay_cycles(unsigned long);
+ 151:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	__tmp = ((F_CPU) / 1e3) * __ms;
+ 152:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 153:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	#if defined(__DELAY_ROUND_DOWN__)
+ 154:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)fabs(__tmp);
+ 155:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 156:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	#elif defined(__DELAY_ROUND_CLOSEST__)
+ 157:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(fabs(__tmp)+0.5);
+ 158:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 159:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	#else
+ 160:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 		//round up by default
+ 161:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+ 162:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	#endif
+ 163:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 164:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	__builtin_avr_delay_cycles(__ticks_dc);
+ 165:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 166:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** #else
+ 167:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	__tmp = ((F_CPU) / 4e3) * __ms;
+ 168:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	if (__tmp < 1.0)
+ 169:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 		__ticks = 1;
+ 170:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	else if (__tmp > 65535)
+ 171:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	{
+ 172:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 		//	__ticks = requested delay in 1/10 ms
+ 173:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 		__ticks = (uint16_t) (__ms * 10.0);
+ 174:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 		while(__ticks)
+ 175:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 		{
+ 176:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 			// wait 1/10 ms
+ 177:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 			_delay_loop_2(((F_CPU) / 4e3) / 10);
+ 178:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 			__ticks --;
+ 179:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 		}
+ 180:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 		return;
+ 181:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	}
+ 182:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	else
+ 183:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 		__ticks = (uint16_t)__tmp;
+ 184:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	_delay_loop_2(__ticks);
+ 185:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** #endif
+ 186:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** }
+ 187:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 188:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** /**
+ 189:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    \ingroup util_delay
+ 190:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 191:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    Perform a delay of \c __us microseconds, using _delay_loop_1().
+ 192:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 193:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    The macro F_CPU is supposed to be defined to a
+ 194:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    constant defining the CPU clock frequency (in Hertz).
+ 195:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 196:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    The maximal possible delay is 768 us / F_CPU in MHz.
+ 197:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 198:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    If the user requests a delay greater than the maximal possible one,
+ 199:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    _delay_us() will automatically call _delay_ms() instead.  The user
+ 200:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    will not be informed about this case.
+ 201:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 202:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    If the avr-gcc toolchain has __builtin_avr_delay_cycles(unsigned long)
+ 203:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    support, maximal possible delay is 4294967.295 us/ F_CPU in MHz. For
+ 204:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    values greater than the maximal possible delay, overflow results in
+ 205:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    no delay i.e., 0us.
+ 206:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****   
+ 207:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    Conversion of __us into clock cycles may not always result in integer.
+ 208:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    By default, the clock cycles rounded up to next integer. This ensures that
+ 209:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    the user gets atleast __us microseconds of delay.
+ 210:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 211:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    Alternatively, user can define __DELAY_ROUND_DOWN__ and __DELAY_ROUND_CLOSEST__
+ 212:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    to round down and round to closest integer.
+ 213:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****  
+ 214:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    Note: The new implementation of _delay_us(double __us) with 
+ 215:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****     __builtin_avr_delay_cycles(unsigned long) support is not backward compatible.
+ 216:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    User can define __DELAY_BACKWARD_COMPATIBLE__ to get a backward compatible delay.
+ 217:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    Also, the backward compatible
+ 218:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    algorithm will be chosen if the code is compiled in a <em>freestanding
+ 219:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    environment</em> (GCC option \c -ffreestanding), as the math functions
+ 220:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****    required for rounding are not available to the compiler then.
+ 221:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 222:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****  */
+ 223:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** void
+ 224:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** _delay_us(double __us)
+ 225:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** {
+ 226:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	uint8_t __ticks;
+ 227:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	double __tmp ; 
+ 228:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) && \
+ 229:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****   !defined(__DELAY_BACKWARD_COMPATIBLE__) &&	   \
+ 230:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h ****   __STDC_HOSTED__
+ 231:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	uint32_t __ticks_dc;
+ 232:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	extern void __builtin_avr_delay_cycles(unsigned long);
+ 233:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	__tmp = ((F_CPU) / 1e6) * __us;
+ 234:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 235:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	#if defined(__DELAY_ROUND_DOWN__)
+ 236:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)fabs(__tmp);
+ 237:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 238:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	#elif defined(__DELAY_ROUND_CLOSEST__)
+ 239:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(fabs(__tmp)+0.5);
+ 240:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 241:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	#else
+ 242:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 		//round up by default
+ 243:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+ 244:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	#endif
+ 245:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 
+ 246:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	__builtin_avr_delay_cycles(__ticks_dc);
+ 143               	.LM2:
+ 144 0002 E3EF      		ldi r30,lo8(499)	 ; ,
+ 145 0004 F1E0      		ldi r31,hi8(499)	 ; ,
+ 146 0006 3197      		1: sbiw r30,1	 ; 
+ 147 0008 01F4      		brne 1b
+ 148 000a 00C0      		rjmp .
+ 149 000c 0000      		nop
+ 150               	.LBE69:
+ 151               	.LBE68:
+ 153               	.Ltext2:
+ 266:barn.cpp      ****     _delay_us(100);
+ 267:barn.cpp      ****     bclr(PORTB, STEP);
+ 155               	.LM3:
+ 156 000e C098      		cbi 0x18,0	 ; ,
+ 157               	.LBB70:
+ 158               	.LBB71:
+ 120:barn.cpp      ****                  );
+ 160               	.LM4:
+ 161               	/* #APP */
+ 162               	 ;  120 "barn.cpp" 1
+ 163 0010 0197      		sbiw	r24, 1	 ;  usec
+ 164 0012 00F0      		brcs	L_20_end
+ 165 0014 01F0      		breq	L_20_end
+ 166 0016 880F      		lsl	r24	 ;  usec
+ 167 0018 991F      		rol	r25	 ;  usec
+ 168 001a 880F      		lsl	r24	 ;  usec
+ 169 001c 991F      		rol	r25	 ;  usec
+ 170 001e 0197      		L_20_loop:sbiw	r24, 1	 ;  usec
+ 171 0020 0000      		nop
+ 172 0022 01F4      		brne	L_20_loop
+ 173 0024 0000      		L_20_end: nop
+ 174               	
+ 175               	 ;  0 "" 2
+ 176               	/* #NOAPP */
+ 177 0026 0895      		ret
+ 178               	.LBE71:
+ 179               	.LBE70:
+ 181               	.Lscope1:
+ 183               		.stabd	78,0,0
+ 184               		.section	.text._Z11reset_sleepv,"ax",@progbits
+ 186               	.global	_Z11reset_sleepv
+ 188               	_Z11reset_sleepv:
+ 189               		.stabd	46,0,0
+ 268:barn.cpp      ****     delayMicroseconds(rate);
+ 269:barn.cpp      **** }
+ 270:barn.cpp      **** 
+ 271:barn.cpp      **** // shuts avr down until reset
+ 272:barn.cpp      **** void reset_sleep() {
+ 191               	.LM5:
+ 192               	.LFBB2:
+ 193               	/* prologue: function */
+ 194               	/* frame size = 0 */
+ 195               	/* stack size = 0 */
+ 196               	.L__stack_usage = 0
+ 197               	.LBB72:
+ 198               	.LBB73:
+  94:barn.cpp      ****     mode ? bset(DDRB, pin) : bclr(DDRB, pin);
+ 200               	.LM6:
+ 201 0000 BA9A      		sbi 0x17,2	 ; ,
+ 202               	.LBE73:
+ 203               	.LBE72:
+ 204               	.LBB74:
+ 205               	.LBB75:
+  90:barn.cpp      ****     val ? bset(PORTB, pin) : bclr(PORTB, pin);
+ 207               	.LM7:
+ 208 0002 C298      		cbi 0x18,2	 ; ,
+ 209               	.LBE75:
+ 210               	.LBE74:
+ 273:barn.cpp      ****     pinMode(RESET, OUTPUT); // keep the driver in reset while we sleep
+ 274:barn.cpp      ****     digitalWrite(RESET, 0); // also stops the stepper from heating up
+ 275:barn.cpp      ****     
+ 276:barn.cpp      ****     set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+ 212               	.LM8:
+ 213 0004 85B7      		in r24,0x35	 ;  D.2308, MEM[(volatile uint8_t *)85B]
+ 214 0006 877E      		andi r24,lo8(-25)	 ;  D.2308,
+ 215 0008 8061      		ori r24,lo8(16)	 ;  D.2308,
+ 216 000a 85BF      		out 0x35,r24	 ;  MEM[(volatile uint8_t *)85B], D.2308
+ 277:barn.cpp      ****     sleep_enable();
+ 218               	.LM9:
+ 219 000c 85B7      		in r24,0x35	 ;  D.2312, MEM[(volatile uint8_t *)85B]
+ 220 000e 8062      		ori r24,lo8(32)	 ;  D.2312,
+ 221 0010 85BF      		out 0x35,r24	 ;  MEM[(volatile uint8_t *)85B], D.2312
+ 278:barn.cpp      ****     asm("cli");
+ 223               	.LM10:
+ 224               	/* #APP */
+ 225               	 ;  278 "barn.cpp" 1
+ 226 0012 F894      		cli
+ 227               	 ;  0 "" 2
+ 279:barn.cpp      ****     sleep_cpu();
+ 229               	.LM11:
+ 230               	 ;  279 "barn.cpp" 1
+ 231 0014 8895      		sleep
+ 232               		
+ 233               	 ;  0 "" 2
+ 234               	/* #NOAPP */
+ 235               	.L3:
+ 236 0016 00C0      		rjmp .L3	 ; 
+ 238               	.Lscope2:
+ 240               		.stabd	78,0,0
+ 241               		.section	.text._Z6rewindv,"ax",@progbits
+ 243               	.global	_Z6rewindv
+ 245               	_Z6rewindv:
+ 246               		.stabd	46,0,0
+ 221:barn.cpp      **** void rewind() {
+ 248               	.LM12:
+ 249               	.LFBB3:
+ 250               	/* prologue: function */
+ 251               	/* frame size = 0 */
+ 252               	/* stack size = 0 */
+ 253               	.L__stack_usage = 0
+ 254               	.LBB76:
+ 255               	.LBB77:
+ 256               	.LBB78:
+  90:barn.cpp      ****     val ? bset(PORTB, pin) : bclr(PORTB, pin);
+ 258               	.LM13:
+ 259 0000 C198      		cbi 0x18,1	 ; ,
+ 260               	.LBE78:
+ 261               	.LBE77:
+ 262               	.LBB79:
+ 263               	.LBB80:
+  94:barn.cpp      ****     mode ? bset(DDRB, pin) : bclr(DDRB, pin);
+ 265               	.LM14:
+ 266 0002 BA98      		cbi 0x17,2	 ; ,
+ 267               	.LBE80:
+ 268               	.LBE79:
+ 269               	.LBB81:
+ 270               	.LBB82:
+  90:barn.cpp      ****     val ? bset(PORTB, pin) : bclr(PORTB, pin);
+ 272               	.LM15:
+ 273 0004 C298      		cbi 0x18,2	 ; ,
+ 274 0006 00C0      		rjmp .L5	 ; 
+ 275               	.L6:
+ 276               	.LBE82:
+ 277               	.LBE81:
+ 230:barn.cpp      ****         doStep(quickStepRate);
+ 279               	.LM16:
+ 280 0008 8CEB      		ldi r24,lo8(-68)	 ; ,
+ 281 000a 92E0      		ldi r25,lo8(2)	 ; ,
+ 282 000c 00D0      		rcall _Z6doStepj	 ; 
+ 283               	.L5:
+ 229:barn.cpp      ****     while(digitalRead(RESET))
+ 285               	.LM17:
+ 286 000e B299      		sbic 0x16,2	 ; ,
+ 287 0010 00C0      		rjmp .L6	 ; 
+ 288               	.LBB83:
+ 289               	.LBB84:
+  90:barn.cpp      ****     val ? bset(PORTB, pin) : bclr(PORTB, pin);
+ 291               	.LM18:
+ 292 0012 C19A      		sbi 0x18,1	 ; ,
+ 293               	.L8:
+ 294               	.LBE84:
+ 295               	.LBE83:
+ 296               	.LBB85:
+ 297               	.LBB86:
+  94:barn.cpp      ****     mode ? bset(DDRB, pin) : bclr(DDRB, pin);
+ 299               	.LM19:
+ 300 0014 BA9A      		sbi 0x17,2	 ; ,
+ 301               	.LBE86:
+ 302               	.LBE85:
+ 303               	.LBB87:
+ 304               	.LBB88:
+  90:barn.cpp      ****     val ? bset(PORTB, pin) : bclr(PORTB, pin);
+ 306               	.LM20:
+ 307 0016 C29A      		sbi 0x18,2	 ; ,
+ 308               	.LBE88:
+ 309               	.LBE87:
+ 310               	.LBB89:
+ 311               	.LBB90:
+ 313               	.Ltext3:
+ 164:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	__builtin_avr_delay_cycles(__ticks_dc);
+ 315               	.LM21:
+ 316 0018 8FE4      		ldi r24,lo8(-15537)	 ; ,
+ 317 001a 93EC      		ldi r25,hi8(-15537)	 ; ,
+ 318 001c 0197      		1: sbiw r24,1	 ; 
+ 319 001e 01F4      		brne 1b
+ 320 0020 00C0      		rjmp .
+ 321 0022 0000      		nop
+ 322 0024 C8E0      		ldi r28,lo8(8)	 ;  ivtmp.26,
+ 323 0026 D0E0      		ldi r29,0	 ;  ivtmp.26
+ 324               	.L7:
+ 325               	.LBE90:
+ 326               	.LBE89:
+ 327               	.LBB91:
+ 329               	.Ltext4:
+ 242:barn.cpp      ****             doStep(quickStepRate * 1.3); // slower RPM as more torque is required going up (stepper
+ 331               	.LM22:
+ 332 0028 8DE8      		ldi r24,lo8(-115)	 ; ,
+ 333 002a 93E0      		ldi r25,lo8(3)	 ; ,
+ 334 002c 00D0      		rcall _Z6doStepj	 ; 
+ 335 002e 2197      		sbiw r28,1	 ;  ivtmp.26,
+ 241:barn.cpp      ****         for (int i = 0; i < 8; i++) // smaller the number, more consistant the return position but 
+ 337               	.LM23:
+ 338 0030 01F4      		brne .L7	 ; ,
+ 339               	.LBE91:
+ 340               	.LBB92:
+ 341               	.LBB93:
+  94:barn.cpp      ****     mode ? bset(DDRB, pin) : bclr(DDRB, pin);
+ 343               	.LM24:
+ 344 0032 BA98      		cbi 0x17,2	 ; ,
+ 345               	.LBE93:
+ 346               	.LBE92:
+ 347               	.LBB94:
+ 348               	.LBB95:
+  90:barn.cpp      ****     val ? bset(PORTB, pin) : bclr(PORTB, pin);
+ 350               	.LM25:
+ 351 0034 C298      		cbi 0x18,2	 ; ,
+ 352               	.LBE95:
+ 353               	.LBE94:
+ 354               	.LBB96:
+ 355               	.LBB97:
+ 357               	.Ltext5:
+ 164:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	__builtin_avr_delay_cycles(__ticks_dc);
+ 359               	.LM26:
+ 360 0036 87E8      		ldi r24,lo8(4999)	 ; ,
+ 361 0038 93E1      		ldi r25,hi8(4999)	 ; ,
+ 362 003a 0197      		1: sbiw r24,1	 ; 
+ 363 003c 01F4      		brne 1b
+ 364 003e 00C0      		rjmp .
+ 365 0040 0000      		nop
+ 366               	.LBE97:
+ 367               	.LBE96:
+ 369               	.Ltext6:
+ 235:barn.cpp      ****     do {
+ 371               	.LM27:
+ 372 0042 B29B      		sbis 0x16,2	 ; ,
+ 373 0044 00C0      		rjmp .L8	 ; 
+ 374               	.LBB98:
+ 375               	.LBB99:
+  94:barn.cpp      ****     mode ? bset(DDRB, pin) : bclr(DDRB, pin);
+ 377               	.LM28:
+ 378 0046 BA9A      		sbi 0x17,2	 ; ,
+ 379               	.LBE99:
+ 380               	.LBE98:
+ 381               	.LBB100:
+ 382               	.LBB101:
+  90:barn.cpp      ****     val ? bset(PORTB, pin) : bclr(PORTB, pin);
+ 384               	.LM29:
+ 385 0048 C29A      		sbi 0x18,2	 ; ,
+ 386 004a CEEE      		ldi r28,lo8(-18)	 ;  ivtmp.25,
+ 387 004c D2E0      		ldi r29,lo8(2)	 ;  ivtmp.25,
+ 388               	.L9:
+ 389               	.LBE101:
+ 390               	.LBE100:
+ 391               	.LBB102:
+ 254:barn.cpp      ****         doStep(quickStepRate * 1.3);
+ 393               	.LM30:
+ 394 004e 8DE8      		ldi r24,lo8(-115)	 ; ,
+ 395 0050 93E0      		ldi r25,lo8(3)	 ; ,
+ 396 0052 00D0      		rcall _Z6doStepj	 ; 
+ 397 0054 2197      		sbiw r28,1	 ;  ivtmp.25,
+ 253:barn.cpp      ****     for (int i = 0; i < 750; i++)
+ 399               	.LM31:
+ 400 0056 01F4      		brne .L9	 ; ,
+ 401               	.LBE102:
+ 257:barn.cpp      ****     state = REWIND_NOT_REQUIRED_MAGIC;
+ 403               	.LM32:
+ 404 0058 8FEE      		ldi r24,lo8(-17)	 ;  tmp107,
+ 405 005a 9EEB      		ldi r25,lo8(-66)	 ; ,
+ 406 005c ADEA      		ldi r26,lo8(-83)	 ; ,
+ 407 005e BEED      		ldi r27,lo8(-34)	 ; ,
+ 408 0060 8093 0000 		sts state,r24	 ;  state, tmp107
+ 409 0064 9093 0000 		sts state+1,r25	 ;  state, tmp107
+ 410 0068 A093 0000 		sts state+2,r26	 ;  state, tmp107
+ 411 006c B093 0000 		sts state+3,r27	 ;  state, tmp107
+ 259:barn.cpp      ****     reset_sleep();
+ 413               	.LM33:
+ 414 0070 00D0      		rcall _Z11reset_sleepv	 ; 
+ 415               	.LBE76:
+ 417               	.Lscope3:
+ 419               		.stabd	78,0,0
+ 420               		.section	.text.startup.main,"ax",@progbits
+ 422               	.global	main
+ 424               	main:
+ 425               		.stabd	46,0,0
+ 170:barn.cpp      **** int main(void) {
+ 427               	.LM34:
+ 428               	.LFBB4:
+ 429               	/* prologue: function */
+ 430               	/* frame size = 0 */
+ 431               	/* stack size = 0 */
+ 432               	.L__stack_usage = 0
+ 433               	.LBB103:
+ 434               	.LBB104:
+ 435               	.LBB105:
+ 437               	.Ltext7:
+ 164:/opt/local/lib/gcc/avr/4.7.2/../../../../avr/include/util/delay.h **** 	__builtin_avr_delay_cycles(__ticks_dc);
+ 439               	.LM35:
+ 440 0000 8FE4      		ldi r24,lo8(-15537)	 ; ,
+ 441 0002 93EC      		ldi r25,hi8(-15537)	 ; ,
+ 442 0004 0197      		1: sbiw r24,1	 ; 
+ 443 0006 01F4      		brne 1b
+ 444 0008 00C0      		rjmp .
+ 445 000a 0000      		nop
+ 446               	.LBE105:
+ 447               	.LBE104:
+ 448               	.LBB106:
+ 449               	.LBB107:
+ 451               	.Ltext8:
+  94:barn.cpp      ****     mode ? bset(DDRB, pin) : bclr(DDRB, pin);
+ 453               	.LM36:
+ 454 000c B89A      		sbi 0x17,0	 ; ,
+ 455               	.LBE107:
+ 456               	.LBE106:
+ 457               	.LBB108:
+ 458               	.LBB109:
+ 459 000e B99A      		sbi 0x17,1	 ; ,
+ 460               	.LBE109:
+ 461               	.LBE108:
+ 462               	.LBB110:
+ 463               	.LBB111:
+ 464 0010 BA98      		cbi 0x17,2	 ; ,
+ 465               	.LBE111:
+ 466               	.LBE110:
+ 467               	.LBB112:
+ 468               	.LBB113:
+  90:barn.cpp      ****     val ? bset(PORTB, pin) : bclr(PORTB, pin);
+ 470               	.LM37:
+ 471 0012 C19A      		sbi 0x18,1	 ; ,
+ 472               	.LBE113:
+ 473               	.LBE112:
+ 179:barn.cpp      ****     if (state != REWIND_NOT_REQUIRED_MAGIC)
+ 475               	.LM38:
+ 476 0014 8091 0000 		lds r24,state	 ;  state.3, state
+ 477 0018 9091 0000 		lds r25,state+1	 ;  state.3, state
+ 478 001c A091 0000 		lds r26,state+2	 ;  state.3, state
+ 479 0020 B091 0000 		lds r27,state+3	 ;  state.3, state
+ 480 0024 8F3E      		cpi r24,-17	 ;  state.3,
+ 481 0026 9E4B      		sbci r25,-66	 ;  state.3,
+ 482 0028 AD4A      		sbci r26,-83	 ;  state.3,
+ 483 002a BE4D      		sbci r27,-34	 ;  state.3,
+ 484 002c 01F0      		breq .L17	 ; ,
+ 180:barn.cpp      ****         rewind(); // never return
+ 486               	.LM39:
+ 487 002e 00D0      		rcall _Z6rewindv	 ; 
+ 488               	.L17:
+ 182:barn.cpp      ****     state = 0; // mark as reset required
+ 490               	.LM40:
+ 491 0030 1092 0000 		sts state,__zero_reg__	 ;  state,
+ 492 0034 1092 0000 		sts state+1,__zero_reg__	 ;  state,
+ 493 0038 1092 0000 		sts state+2,__zero_reg__	 ;  state,
+ 494 003c 1092 0000 		sts state+3,__zero_reg__	 ;  state,
+ 187:barn.cpp      ****     uint8_t skip = first_update;
+ 496               	.LM41:
+ 497 0040 E2E0      		ldi r30,lo8(2)	 ;  skip,
+ 186:barn.cpp      ****     uint16_t table_pos = 0;
+ 499               	.LM42:
+ 500 0042 80E0      		ldi r24,0	 ;  table_pos
+ 501 0044 90E0      		ldi r25,0	 ;  table_pos
+ 185:barn.cpp      ****     uint8_t counter = 0;
+ 503               	.LM43:
+ 504 0046 60E0      		ldi r22,0	 ;  counter
+ 184:barn.cpp      ****     uint16_t delay = baseval;
+ 506               	.LM44:
+ 507 0048 28E0      		ldi r18,lo8(8)	 ;  _delay_ms,
+ 508 004a 35E1      		ldi r19,lo8(21)	 ;  _delay_ms,
+ 509               	.L25:
+ 510               	.LBB114:
+ 190:barn.cpp      ****         bset(PORTB, STEP);
+ 512               	.LM45:
+ 513 004c C09A      		sbi 0x18,0	 ; ,
+ 514               	.LBB115:
+ 515               	.LBB116:
+ 517               	.Ltext9:
+ 519               	.LM46:
+ 520 004e A3EF      		ldi r26,lo8(499)	 ; ,
+ 521 0050 B1E0      		ldi r27,hi8(499)	 ; ,
+ 522 0052 1197      		1: sbiw r26,1	 ; 
+ 523 0054 01F4      		brne 1b
+ 524 0056 00C0      		rjmp .
+ 525 0058 0000      		nop
+ 526               	.LBE116:
+ 527               	.LBE115:
+ 529               	.Ltext10:
+ 192:barn.cpp      ****         bclr(PORTB, STEP);
+ 531               	.LM47:
+ 532 005a C098      		cbi 0x18,0	 ; ,
+ 533               	.LBB117:
+ 534               	.LBB118:
+ 120:barn.cpp      ****                  );
+ 536               	.LM48:
+ 537 005c D901      		movw r26,r18	 ;  usec, _delay_ms
+ 538               	/* #APP */
+ 539               	 ;  120 "barn.cpp" 1
+ 540 005e 1197      		sbiw	r26, 1	 ;  usec
+ 541 0060 00F0      		brcs	L_267_end
+ 542 0062 01F0      		breq	L_267_end
+ 543 0064 AA0F      		lsl	r26	 ;  usec
+ 544 0066 BB1F      		rol	r27	 ;  usec
+ 545 0068 AA0F      		lsl	r26	 ;  usec
+ 546 006a BB1F      		rol	r27	 ;  usec
+ 547 006c 1197      		L_267_loop:sbiw	r26, 1	 ;  usec
+ 548 006e 0000      		nop
+ 549 0070 01F4      		brne	L_267_loop
+ 550 0072 0000      		L_267_end: nop
+ 551               	
+ 552               	 ;  0 "" 2
+ 553               	/* #NOAPP */
+ 554               	.LBE118:
+ 555               	.LBE117:
+ 556               	.LBB119:
+ 195:barn.cpp      ****         if (!(++counter)) {
+ 558               	.LM49:
+ 559 0074 6F5F      		subi r22,lo8(-(1))	 ;  counter,
+ 560 0076 01F4      		brne .L19	 ; ,
+ 561               	.LBB120:
+ 196:barn.cpp      ****             if (skip > 1) { // it's not time to read new tweak value yet
+ 563               	.LM50:
+ 564 0078 E230      		cpi r30,lo8(2)	 ;  skip,
+ 565 007a 00F0      		brlo .L20	 ; ,
+ 197:barn.cpp      ****                 skip--;
+ 567               	.LM51:
+ 568 007c E150      		subi r30,lo8(-(-1))	 ;  skip,
+ 198:barn.cpp      ****                 __builtin_avr_delay_cycles(13 - 3); // above code uses 3 cycles
+ 570               	.LM52:
+ 571 007e B3E0      		ldi r27,lo8(3)	 ; ,
+ 572 0080 BA95      		1: dec r27	 ; 
+ 573 0082 01F4      		brne 1b
+ 574 0084 00C0      		rjmp .L26	 ; 
+ 575               	.L20:
+ 576               	.LBB121:
+ 202:barn.cpp      ****             if (table_pos < sizeof(offset_table)) {
+ 578               	.LM53:
+ 579 0086 8F35      		cpi r24,95	 ;  table_pos,
+ 580 0088 42E0      		ldi r20,2	 ; ,
+ 581 008a 9407      		cpc r25,r20	 ;  table_pos,
+ 582 008c 00F4      		brsh .L22	 ; ,
+ 583               	.LBB122:
+ 584               	.LBB123:
+ 203:barn.cpp      ****                 skip = pgm_read_byte((uint16_t)offset_table + table_pos);
+ 586               	.LM54:
+ 587 008e FC01      		movw r30,r24	 ;  tmp84, table_pos
+ 588 0090 E050      		subi r30,lo8(-(_ZL12offset_table))	 ;  tmp84,
+ 589 0092 F040      		sbci r31,hi8(-(_ZL12offset_table))	 ;  tmp84,
+ 590               	/* #APP */
+ 591               	 ;  203 "barn.cpp" 1
+ 592 0094 E491      		lpm r30, Z	 ;  __result
+ 593               		
+ 594               	 ;  0 "" 2
+ 595               	/* #NOAPP */
+ 596               	.LBE123:
+ 204:barn.cpp      ****                 delay += (skip & 1) ? 1 : -1;
+ 598               	.LM55:
+ 599 0096 E0FF      		sbrs r30,0	 ;  __result,
+ 600 0098 00C0      		rjmp .L24	 ; 
+ 601 009a 41E0      		ldi r20,lo8(1)	 ;  iftmp.6,
+ 602 009c 50E0      		ldi r21,0	 ;  iftmp.6
+ 603 009e 00C0      		rjmp .L23	 ; 
+ 604               	.L24:
+ 605 00a0 4FEF      		ldi r20,lo8(-1)	 ;  iftmp.6,
+ 606 00a2 5FEF      		ldi r21,lo8(-1)	 ;  iftmp.6,
+ 607               	.L23:
+ 204:barn.cpp      ****                 delay += (skip & 1) ? 1 : -1;
+ 609               	.LM56:
+ 610 00a4 240F      		add r18,r20	 ;  _delay_ms, iftmp.6
+ 611 00a6 351F      		adc r19,r21	 ;  _delay_ms, iftmp.6
+ 205:barn.cpp      ****                 skip = skip >> 1;
+ 613               	.LM57:
+ 614 00a8 E695      		lsr r30	 ;  skip
+ 615               	.LBE122:
+ 616               	.LBE121:
+ 210:barn.cpp      ****             table_pos++;
+ 618               	.LM58:
+ 619 00aa 0196      		adiw r24,1	 ;  table_pos,
+ 620 00ac 00C0      		rjmp .L25	 ; 
+ 621               	.L22:
+ 622               	.LBB124:
+ 208:barn.cpp      ****                 reset_sleep();
+ 624               	.LM59:
+ 625 00ae 00D0      		rcall _Z11reset_sleepv	 ; 
+ 626               	.L19:
+ 627               	.LBE124:
+ 628               	.LBE120:
+ 212:barn.cpp      ****             __builtin_avr_delay_cycles(13);
+ 630               	.LM60:
+ 631 00b0 A4E0      		ldi r26,lo8(4)	 ; ,
+ 632 00b2 AA95      		1: dec r26	 ; 
+ 633 00b4 01F4      		brne 1b
+ 634               	.L26:
+ 635 00b6 0000      		nop
+ 636 00b8 00C0      		rjmp .L25	 ; 
+ 637               	.LBE119:
+ 638               	.LBE114:
+ 639               	.LBE103:
+ 650               	.Lscope4:
+ 652               		.stabd	78,0,0
+ 653               	.global	state
+ 654               		.section	.noinit,"aw",@nobits
+ 657               	state:
+ 658 0000 0000 0000 		.zero	4
+ 659               		.section	.progmem.data._ZL12offset_table,"a",@progbits
+ 662               	_ZL12offset_table:
+ 663 0000 09        		.byte	9
+ 664 0001 04        		.byte	4
+ 665 0002 11        		.byte	17
+ 666 0003 04        		.byte	4
+ 667 0004 07        		.byte	7
+ 668 0005 05        		.byte	5
+ 669 0006 10        		.byte	16
+ 670 0007 07        		.byte	7
+ 671 0008 08        		.byte	8
+ 672 0009 0B        		.byte	11
+ 673 000a 04        		.byte	4
+ 674 000b 29        		.byte	41
+ 675 000c 07        		.byte	7
+ 676 000d 08        		.byte	8
+ 677 000e 09        		.byte	9
+ 678 000f 04        		.byte	4
+ 679 0010 11        		.byte	17
+ 680 0011 04        		.byte	4
+ 681 0012 03        		.byte	3
+ 682 0013 05        		.byte	5
+ 683 0014 12        		.byte	18
+ 684 0015 07        		.byte	7
+ 685 0016 06        		.byte	6
+ 686 0017 07        		.byte	7
+ 687 0018 04        		.byte	4
+ 688 0019 0F        		.byte	15
+ 689 001a 04        		.byte	4
+ 690 001b 0B        		.byte	11
+ 691 001c 05        		.byte	5
+ 692 001d 0E        		.byte	14
+ 693 001e 07        		.byte	7
+ 694 001f 06        		.byte	6
+ 695 0020 09        		.byte	9
+ 696 0021 04        		.byte	4
+ 697 0022 27        		.byte	39
+ 698 0023 07        		.byte	7
+ 699 0024 08        		.byte	8
+ 700 0025 09        		.byte	9
+ 701 0026 04        		.byte	4
+ 702 0027 27        		.byte	39
+ 703 0028 05        		.byte	5
+ 704 0029 06        		.byte	6
+ 705 002a 07        		.byte	7
+ 706 002b 04        		.byte	4
+ 707 002c 09        		.byte	9
+ 708 002d 04        		.byte	4
+ 709 002e 19        		.byte	25
+ 710 002f 05        		.byte	5
+ 711 0030 0A        		.byte	10
+ 712 0031 07        		.byte	7
+ 713 0032 04        		.byte	4
+ 714 0033 09        		.byte	9
+ 715 0034 04        		.byte	4
+ 716 0035 21        		.byte	33
+ 717 0036 07        		.byte	7
+ 718 0037 08        		.byte	8
+ 719 0038 09        		.byte	9
+ 720 0039 04        		.byte	4
+ 721 003a 27        		.byte	39
+ 722 003b 07        		.byte	7
+ 723 003c 06        		.byte	6
+ 724 003d 09        		.byte	9
+ 725 003e 04        		.byte	4
+ 726 003f 23        		.byte	35
+ 727 0040 05        		.byte	5
+ 728 0041 06        		.byte	6
+ 729 0042 07        		.byte	7
+ 730 0043 04        		.byte	4
+ 731 0044 0B        		.byte	11
+ 732 0045 04        		.byte	4
+ 733 0046 13        		.byte	19
+ 734 0047 05        		.byte	5
+ 735 0048 08        		.byte	8
+ 736 0049 05        		.byte	5
+ 737 004a 04        		.byte	4
+ 738 004b 07        		.byte	7
+ 739 004c 04        		.byte	4
+ 740 004d 27        		.byte	39
+ 741 004e 07        		.byte	7
+ 742 004f 06        		.byte	6
+ 743 0050 09        		.byte	9
+ 744 0051 04        		.byte	4
+ 745 0052 1F        		.byte	31
+ 746 0053 05        		.byte	5
+ 747 0054 06        		.byte	6
+ 748 0055 07        		.byte	7
+ 749 0056 04        		.byte	4
+ 750 0057 0B        		.byte	11
+ 751 0058 04        		.byte	4
+ 752 0059 11        		.byte	17
+ 753 005a 05        		.byte	5
+ 754 005b 0A        		.byte	10
+ 755 005c 07        		.byte	7
+ 756 005d 04        		.byte	4
+ 757 005e 09        		.byte	9
+ 758 005f 04        		.byte	4
+ 759 0060 19        		.byte	25
+ 760 0061 05        		.byte	5
+ 761 0062 06        		.byte	6
+ 762 0063 05        		.byte	5
+ 763 0064 04        		.byte	4
+ 764 0065 09        		.byte	9
+ 765 0066 04        		.byte	4
+ 766 0067 1D        		.byte	29
+ 767 0068 05        		.byte	5
+ 768 0069 06        		.byte	6
+ 769 006a 09        		.byte	9
+ 770 006b 04        		.byte	4
+ 771 006c 0F        		.byte	15
+ 772 006d 04        		.byte	4
+ 773 006e 03        		.byte	3
+ 774 006f 05        		.byte	5
+ 775 0070 0E        		.byte	14
+ 776 0071 07        		.byte	7
+ 777 0072 06        		.byte	6
+ 778 0073 11        		.byte	17
+ 779 0074 04        		.byte	4
+ 780 0075 05        		.byte	5
+ 781 0076 05        		.byte	5
+ 782 0077 0E        		.byte	14
+ 783 0078 07        		.byte	7
+ 784 0079 06        		.byte	6
+ 785 007a 11        		.byte	17
+ 786 007b 04        		.byte	4
+ 787 007c 05        		.byte	5
+ 788 007d 05        		.byte	5
+ 789 007e 0C        		.byte	12
+ 790 007f 05        		.byte	5
+ 791 0080 04        		.byte	4
+ 792 0081 07        		.byte	7
+ 793 0082 04        		.byte	4
+ 794 0083 21        		.byte	33
+ 795 0084 05        		.byte	5
+ 796 0085 06        		.byte	6
+ 797 0086 09        		.byte	9
+ 798 0087 04        		.byte	4
+ 799 0088 1F        		.byte	31
+ 800 0089 07        		.byte	7
+ 801 008a 06        		.byte	6
+ 802 008b 09        		.byte	9
+ 803 008c 04        		.byte	4
+ 804 008d 19        		.byte	25
+ 805 008e 05        		.byte	5
+ 806 008f 08        		.byte	8
+ 807 0090 09        		.byte	9
+ 808 0091 04        		.byte	4
+ 809 0092 1F        		.byte	31
+ 810 0093 05        		.byte	5
+ 811 0094 06        		.byte	6
+ 812 0095 09        		.byte	9
+ 813 0096 04        		.byte	4
+ 814 0097 1D        		.byte	29
+ 815 0098 07        		.byte	7
+ 816 0099 06        		.byte	6
+ 817 009a 07        		.byte	7
+ 818 009b 04        		.byte	4
+ 819 009c 1B        		.byte	27
+ 820 009d 05        		.byte	5
+ 821 009e 06        		.byte	6
+ 822 009f 07        		.byte	7
+ 823 00a0 04        		.byte	4
+ 824 00a1 23        		.byte	35
+ 825 00a2 05        		.byte	5
+ 826 00a3 04        		.byte	4
+ 827 00a4 07        		.byte	7
+ 828 00a5 04        		.byte	4
+ 829 00a6 1D        		.byte	29
+ 830 00a7 05        		.byte	5
+ 831 00a8 06        		.byte	6
+ 832 00a9 09        		.byte	9
+ 833 00aa 04        		.byte	4
+ 834 00ab 1B        		.byte	27
+ 835 00ac 07        		.byte	7
+ 836 00ad 06        		.byte	6
+ 837 00ae 09        		.byte	9
+ 838 00af 04        		.byte	4
+ 839 00b0 17        		.byte	23
+ 840 00b1 05        		.byte	5
+ 841 00b2 06        		.byte	6
+ 842 00b3 07        		.byte	7
+ 843 00b4 04        		.byte	4
+ 844 00b5 21        		.byte	33
+ 845 00b6 05        		.byte	5
+ 846 00b7 06        		.byte	6
+ 847 00b8 0D        		.byte	13
+ 848 00b9 04        		.byte	4
+ 849 00ba 0B        		.byte	11
+ 850 00bb 05        		.byte	5
+ 851 00bc 0A        		.byte	10
+ 852 00bd 07        		.byte	7
+ 853 00be 04        		.byte	4
+ 854 00bf 0B        		.byte	11
+ 855 00c0 04        		.byte	4
+ 856 00c1 09        		.byte	9
+ 857 00c2 05        		.byte	5
+ 858 00c3 0A        		.byte	10
+ 859 00c4 07        		.byte	7
+ 860 00c5 06        		.byte	6
+ 861 00c6 1F        		.byte	31
+ 862 00c7 05        		.byte	5
+ 863 00c8 06        		.byte	6
+ 864 00c9 0B        		.byte	11
+ 865 00ca 04        		.byte	4
+ 866 00cb 13        		.byte	19
+ 867 00cc 05        		.byte	5
+ 868 00cd 06        		.byte	6
+ 869 00ce 07        		.byte	7
+ 870 00cf 04        		.byte	4
+ 871 00d0 21        		.byte	33
+ 872 00d1 07        		.byte	7
+ 873 00d2 06        		.byte	6
+ 874 00d3 21        		.byte	33
+ 875 00d4 07        		.byte	7
+ 876 00d5 06        		.byte	6
+ 877 00d6 23        		.byte	35
+ 878 00d7 07        		.byte	7
+ 879 00d8 04        		.byte	4
+ 880 00d9 09        		.byte	9
+ 881 00da 04        		.byte	4
+ 882 00db 0D        		.byte	13
+ 883 00dc 05        		.byte	5
+ 884 00dd 08        		.byte	8
+ 885 00de 07        		.byte	7
+ 886 00df 04        		.byte	4
+ 887 00e0 21        		.byte	33
+ 888 00e1 07        		.byte	7
+ 889 00e2 06        		.byte	6
+ 890 00e3 1F        		.byte	31
+ 891 00e4 07        		.byte	7
+ 892 00e5 06        		.byte	6
+ 893 00e6 21        		.byte	33
+ 894 00e7 05        		.byte	5
+ 895 00e8 04        		.byte	4
+ 896 00e9 09        		.byte	9
+ 897 00ea 04        		.byte	4
+ 898 00eb 11        		.byte	17
+ 899 00ec 05        		.byte	5
+ 900 00ed 08        		.byte	8
+ 901 00ee 09        		.byte	9
+ 902 00ef 04        		.byte	4
+ 903 00f0 17        		.byte	23
+ 904 00f1 05        		.byte	5
+ 905 00f2 06        		.byte	6
+ 906 00f3 0B        		.byte	11
+ 907 00f4 04        		.byte	4
+ 908 00f5 0F        		.byte	15
+ 909 00f6 05        		.byte	5
+ 910 00f7 08        		.byte	8
+ 911 00f8 09        		.byte	9
+ 912 00f9 04        		.byte	4
+ 913 00fa 19        		.byte	25
+ 914 00fb 07        		.byte	7
+ 915 00fc 06        		.byte	6
+ 916 00fd 21        		.byte	33
+ 917 00fe 07        		.byte	7
+ 918 00ff 06        		.byte	6
+ 919 0100 1B        		.byte	27
+ 920 0101 05        		.byte	5
+ 921 0102 06        		.byte	6
+ 922 0103 0D        		.byte	13
+ 923 0104 04        		.byte	4
+ 924 0105 09        		.byte	9
+ 925 0106 05        		.byte	5
+ 926 0107 08        		.byte	8
+ 927 0108 07        		.byte	7
+ 928 0109 04        		.byte	4
+ 929 010a 1F        		.byte	31
+ 930 010b 07        		.byte	7
+ 931 010c 04        		.byte	4
+ 932 010d 1F        		.byte	31
+ 933 010e 07        		.byte	7
+ 934 010f 04        		.byte	4
+ 935 0110 1F        		.byte	31
+ 936 0111 07        		.byte	7
+ 937 0112 06        		.byte	6
+ 938 0113 19        		.byte	25
+ 939 0114 05        		.byte	5
+ 940 0115 06        		.byte	6
+ 941 0116 0D        		.byte	13
+ 942 0117 04        		.byte	4
+ 943 0118 07        		.byte	7
+ 944 0119 05        		.byte	5
+ 945 011a 0A        		.byte	10
+ 946 011b 09        		.byte	9
+ 947 011c 04        		.byte	4
+ 948 011d 17        		.byte	23
+ 949 011e 05        		.byte	5
+ 950 011f 06        		.byte	6
+ 951 0120 23        		.byte	35
+ 952 0121 09        		.byte	9
+ 953 0122 04        		.byte	4
+ 954 0123 17        		.byte	23
+ 955 0124 05        		.byte	5
+ 956 0125 06        		.byte	6
+ 957 0126 21        		.byte	33
+ 958 0127 07        		.byte	7
+ 959 0128 06        		.byte	6
+ 960 0129 17        		.byte	23
+ 961 012a 05        		.byte	5
+ 962 012b 06        		.byte	6
+ 963 012c 0F        		.byte	15
+ 964 012d 04        		.byte	4
+ 965 012e 03        		.byte	3
+ 966 012f 05        		.byte	5
+ 967 0130 0A        		.byte	10
+ 968 0131 07        		.byte	7
+ 969 0132 04        		.byte	4
+ 970 0133 19        		.byte	25
+ 971 0134 05        		.byte	5
+ 972 0135 06        		.byte	6
+ 973 0136 1F        		.byte	31
+ 974 0137 07        		.byte	7
+ 975 0138 04        		.byte	4
+ 976 0139 1D        		.byte	29
+ 977 013a 07        		.byte	7
+ 978 013b 04        		.byte	4
+ 979 013c 1B        		.byte	27
+ 980 013d 07        		.byte	7
+ 981 013e 06        		.byte	6
+ 982 013f 19        		.byte	25
+ 983 0140 07        		.byte	7
+ 984 0141 06        		.byte	6
+ 985 0142 19        		.byte	25
+ 986 0143 07        		.byte	7
+ 987 0144 06        		.byte	6
+ 988 0145 1D        		.byte	29
+ 989 0146 09        		.byte	9
+ 990 0147 04        		.byte	4
+ 991 0148 17        		.byte	23
+ 992 0149 07        		.byte	7
+ 993 014a 06        		.byte	6
+ 994 014b 19        		.byte	25
+ 995 014c 07        		.byte	7
+ 996 014d 06        		.byte	6
+ 997 014e 19        		.byte	25
+ 998 014f 05        		.byte	5
+ 999 0150 04        		.byte	4
+ 1000 0151 09        		.byte	9
+ 1001 0152 04        		.byte	4
+ 1002 0153 0B        		.byte	11
+ 1003 0154 05        		.byte	5
+ 1004 0155 08        		.byte	8
+ 1005 0156 0B        		.byte	11
+ 1006 0157 04        		.byte	4
+ 1007 0158 0B        		.byte	11
+ 1008 0159 05        		.byte	5
+ 1009 015a 06        		.byte	6
+ 1010 015b 07        		.byte	7
+ 1011 015c 04        		.byte	4
+ 1012 015d 15        		.byte	21
+ 1013 015e 05        		.byte	5
+ 1014 015f 06        		.byte	6
+ 1015 0160 1D        		.byte	29
+ 1016 0161 07        		.byte	7
+ 1017 0162 06        		.byte	6
+ 1018 0163 13        		.byte	19
+ 1019 0164 05        		.byte	5
+ 1020 0165 06        		.byte	6
+ 1021 0166 09        		.byte	9
+ 1022 0167 04        		.byte	4
+ 1023 0168 0B        		.byte	11
+ 1024 0169 05        		.byte	5
+ 1025 016a 08        		.byte	8
+ 1026 016b 09        		.byte	9
+ 1027 016c 04        		.byte	4
+ 1028 016d 0D        		.byte	13
+ 1029 016e 05        		.byte	5
+ 1030 016f 08        		.byte	8
+ 1031 0170 21        		.byte	33
+ 1032 0171 09        		.byte	9
+ 1033 0172 04        		.byte	4
+ 1034 0173 0F        		.byte	15
+ 1035 0174 05        		.byte	5
+ 1036 0175 06        		.byte	6
+ 1037 0176 09        		.byte	9
+ 1038 0177 04        		.byte	4
+ 1039 0178 0D        		.byte	13
+ 1040 0179 05        		.byte	5
+ 1041 017a 06        		.byte	6
+ 1042 017b 09        		.byte	9
+ 1043 017c 04        		.byte	4
+ 1044 017d 0D        		.byte	13
+ 1045 017e 05        		.byte	5
+ 1046 017f 06        		.byte	6
+ 1047 0180 09        		.byte	9
+ 1048 0181 04        		.byte	4
+ 1049 0182 0D        		.byte	13
+ 1050 0183 05        		.byte	5
+ 1051 0184 06        		.byte	6
+ 1052 0185 09        		.byte	9
+ 1053 0186 04        		.byte	4
+ 1054 0187 0B        		.byte	11
+ 1055 0188 05        		.byte	5
+ 1056 0189 08        		.byte	8
+ 1057 018a 0D        		.byte	13
+ 1058 018b 04        		.byte	4
+ 1059 018c 03        		.byte	3
+ 1060 018d 05        		.byte	5
+ 1061 018e 0A        		.byte	10
+ 1062 018f 09        		.byte	9
+ 1063 0190 04        		.byte	4
+ 1064 0191 0F        		.byte	15
+ 1065 0192 05        		.byte	5
+ 1066 0193 06        		.byte	6
+ 1067 0194 1D        		.byte	29
+ 1068 0195 07        		.byte	7
+ 1069 0196 04        		.byte	4
+ 1070 0197 17        		.byte	23
+ 1071 0198 05        		.byte	5
+ 1072 0199 04        		.byte	4
+ 1073 019a 1B        		.byte	27
+ 1074 019b 07        		.byte	7
+ 1075 019c 04        		.byte	4
+ 1076 019d 17        		.byte	23
+ 1077 019e 07        		.byte	7
+ 1078 019f 04        		.byte	4
+ 1079 01a0 19        		.byte	25
+ 1080 01a1 09        		.byte	9
+ 1081 01a2 04        		.byte	4
+ 1082 01a3 11        		.byte	17
+ 1083 01a4 05        		.byte	5
+ 1084 01a5 06        		.byte	6
+ 1085 01a6 1B        		.byte	27
+ 1086 01a7 07        		.byte	7
+ 1087 01a8 04        		.byte	4
+ 1088 01a9 15        		.byte	21
+ 1089 01aa 07        		.byte	7
+ 1090 01ab 06        		.byte	6
+ 1091 01ac 13        		.byte	19
+ 1092 01ad 05        		.byte	5
+ 1093 01ae 06        		.byte	6
+ 1094 01af 1B        		.byte	27
+ 1095 01b0 07        		.byte	7
+ 1096 01b1 04        		.byte	4
+ 1097 01b2 15        		.byte	21
+ 1098 01b3 05        		.byte	5
+ 1099 01b4 04        		.byte	4
+ 1100 01b5 1B        		.byte	27
+ 1101 01b6 07        		.byte	7
+ 1102 01b7 04        		.byte	4
+ 1103 01b8 15        		.byte	21
+ 1104 01b9 07        		.byte	7
+ 1105 01ba 04        		.byte	4
+ 1106 01bb 15        		.byte	21
+ 1107 01bc 05        		.byte	5
+ 1108 01bd 04        		.byte	4
+ 1109 01be 1B        		.byte	27
+ 1110 01bf 07        		.byte	7
+ 1111 01c0 04        		.byte	4
+ 1112 01c1 13        		.byte	19
+ 1113 01c2 07        		.byte	7
+ 1114 01c3 06        		.byte	6
+ 1115 01c4 13        		.byte	19
+ 1116 01c5 07        		.byte	7
+ 1117 01c6 06        		.byte	6
+ 1118 01c7 15        		.byte	21
+ 1119 01c8 07        		.byte	7
+ 1120 01c9 06        		.byte	6
+ 1121 01ca 11        		.byte	17
+ 1122 01cb 05        		.byte	5
+ 1123 01cc 06        		.byte	6
+ 1124 01cd 1B        		.byte	27
+ 1125 01ce 09        		.byte	9
+ 1126 01cf 04        		.byte	4
+ 1127 01d0 0F        		.byte	15
+ 1128 01d1 07        		.byte	7
+ 1129 01d2 06        		.byte	6
+ 1130 01d3 15        		.byte	21
+ 1131 01d4 07        		.byte	7
+ 1132 01d5 04        		.byte	4
+ 1133 01d6 17        		.byte	23
+ 1134 01d7 07        		.byte	7
+ 1135 01d8 04        		.byte	4
+ 1136 01d9 13        		.byte	19
+ 1137 01da 07        		.byte	7
+ 1138 01db 06        		.byte	6
+ 1139 01dc 11        		.byte	17
+ 1140 01dd 05        		.byte	5
+ 1141 01de 04        		.byte	4
+ 1142 01df 09        		.byte	9
+ 1143 01e0 04        		.byte	4
+ 1144 01e1 05        		.byte	5
+ 1145 01e2 05        		.byte	5
+ 1146 01e3 08        		.byte	8
+ 1147 01e4 07        		.byte	7
+ 1148 01e5 04        		.byte	4
+ 1149 01e6 0D        		.byte	13
+ 1150 01e7 05        		.byte	5
+ 1151 01e8 06        		.byte	6
+ 1152 01e9 1B        		.byte	27
+ 1153 01ea 07        		.byte	7
+ 1154 01eb 04        		.byte	4
+ 1155 01ec 11        		.byte	17
+ 1156 01ed 07        		.byte	7
+ 1157 01ee 04        		.byte	4
+ 1158 01ef 17        		.byte	23
+ 1159 01f0 07        		.byte	7
+ 1160 01f1 04        		.byte	4
+ 1161 01f2 11        		.byte	17
+ 1162 01f3 05        		.byte	5
+ 1163 01f4 04        		.byte	4
+ 1164 01f5 1B        		.byte	27
+ 1165 01f6 09        		.byte	9
+ 1166 01f7 04        		.byte	4
+ 1167 01f8 0B        		.byte	11
+ 1168 01f9 05        		.byte	5
+ 1169 01fa 06        		.byte	6
+ 1170 01fb 19        		.byte	25
+ 1171 01fc 07        		.byte	7
+ 1172 01fd 04        		.byte	4
+ 1173 01fe 11        		.byte	17
+ 1174 01ff 07        		.byte	7
+ 1175 0200 06        		.byte	6
+ 1176 0201 11        		.byte	17
+ 1177 0202 07        		.byte	7
+ 1178 0203 06        		.byte	6
+ 1179 0204 13        		.byte	19
+ 1180 0205 07        		.byte	7
+ 1181 0206 04        		.byte	4
+ 1182 0207 15        		.byte	21
+ 1183 0208 07        		.byte	7
+ 1184 0209 04        		.byte	4
+ 1185 020a 13        		.byte	19
+ 1186 020b 09        		.byte	9
+ 1187 020c 04        		.byte	4
+ 1188 020d 0F        		.byte	15
+ 1189 020e 05        		.byte	5
+ 1190 020f 04        		.byte	4
+ 1191 0210 1B        		.byte	27
+ 1192 0211 1D        		.byte	29
+ 1193 0212 1D        		.byte	29
+ 1194 0213 1D        		.byte	29
+ 1195 0214 1B        		.byte	27
+ 1196 0215 07        		.byte	7
+ 1197 0216 04        		.byte	4
+ 1198 0217 0D        		.byte	13
+ 1199 0218 05        		.byte	5
+ 1200 0219 06        		.byte	6
+ 1201 021a 17        		.byte	23
+ 1202 021b 09        		.byte	9
+ 1203 021c 04        		.byte	4
+ 1204 021d 0D        		.byte	13
+ 1205 021e 07        		.byte	7
+ 1206 021f 06        		.byte	6
+ 1207 0220 11        		.byte	17
+ 1208 0221 07        		.byte	7
+ 1209 0222 06        		.byte	6
+ 1210 0223 0F        		.byte	15
+ 1211 0224 07        		.byte	7
+ 1212 0225 06        		.byte	6
+ 1213 0226 13        		.byte	19
+ 1214 0227 07        		.byte	7
+ 1215 0228 04        		.byte	4
+ 1216 0229 11        		.byte	17
+ 1217 022a 07        		.byte	7
+ 1218 022b 06        		.byte	6
+ 1219 022c 0D        		.byte	13
+ 1220 022d 05        		.byte	5
+ 1221 022e 06        		.byte	6
+ 1222 022f 19        		.byte	25
+ 1223 0230 1D        		.byte	29
+ 1224 0231 1B        		.byte	27
+ 1225 0232 0B        		.byte	11
+ 1226 0233 04        		.byte	4
+ 1227 0234 03        		.byte	3
+ 1228 0235 05        		.byte	5
+ 1229 0236 08        		.byte	8
+ 1230 0237 19        		.byte	25
+ 1231 0238 09        		.byte	9
+ 1232 0239 04        		.byte	4
+ 1233 023a 09        		.byte	9
+ 1234 023b 05        		.byte	5
+ 1235 023c 06        		.byte	6
+ 1236 023d 17        		.byte	23
+ 1237 023e 07        		.byte	7
+ 1238 023f 04        		.byte	4
+ 1239 0240 0F        		.byte	15
+ 1240 0241 07        		.byte	7
+ 1241 0242 04        		.byte	4
+ 1242 0243 13        		.byte	19
+ 1243 0244 09        		.byte	9
+ 1244 0245 04        		.byte	4
+ 1245 0246 0B        		.byte	11
+ 1246 0247 05        		.byte	5
+ 1247 0248 06        		.byte	6
+ 1248 0249 15        		.byte	21
+ 1249 024a 09        		.byte	9
+ 1250 024b 04        		.byte	4
+ 1251 024c 0B        		.byte	11
+ 1252 024d 05        		.byte	5
+ 1253 024e 06        		.byte	6
+ 1254 024f 15        		.byte	21
+ 1255 0250 09        		.byte	9
+ 1256 0251 04        		.byte	4
+ 1257 0252 0B        		.byte	11
+ 1258 0253 05        		.byte	5
+ 1259 0254 04        		.byte	4
+ 1260 0255 19        		.byte	25
+ 1261 0256 1B        		.byte	27
+ 1262 0257 1B        		.byte	27
+ 1263 0258 19        		.byte	25
+ 1264 0259 09        		.byte	9
+ 1265 025a 04        		.byte	4
+ 1266 025b 05        		.byte	5
+ 1267 025c 05        		.byte	5
+ 1268 025d 08        		.byte	8
+ 1269 025e 17        		.byte	23
+ 1276               		.text
+ 1278               	.Letext0:
+ 1279               		.ident	"GCC: (GNU) 4.7.2"

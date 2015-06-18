@@ -1,0 +1,14 @@
+
+Software: 
+
+BarnCalcs is the C program I wrote to calculate the delay values used. Should be pretty easily adapted to any other isosceles type barndoor tracker, though you will likely need to modify it to use steps per millisecond rather than microsecond. Measurement accuracy is paramount! Theoretical accuracy is under 0.001 of an arcsecond. In reality, it depends on your measurements. 
+
+AVR code is simple: it either rewinds or runs forward. When running forward, it steps; delaying a specific amount between each. every 256 steps it will either mark an interval off, or update delay value and load the number of intervals til next tweak. At the end of the table, it stops. Not much more to it. When rewinding, it goes until it hits limit switch, advances a little, then fully shuts down the AVR after putting the A4988 in a sleep state. Uses very little power like this.
+
+Used a clever trick to allow the reset pin to be used as the user input. On start, a variable specially marked not to be initialized is read; if it's not a special value, a rewind is executed, and at the end, the special value is stored in the variable. If the user resets the uC via the buttons, SRAM will NOT be cleared; The code will read the var, see the special value signifying it's been rewound, and then run normally after clearing the variable. This allows me to not have to burn the "reset as IO" fuse bit, so I can still program the AVR in-circuit.
+
+I used a Saleae Logic clone to figure out the number of dead cycles to add to make timing accuracy just right. Did an hour run of it, and timed it; angle was within measurement error and time was bang on. Math is power! (groan)
+
+Programming was done via my teensy until I killed it in the same incident that claimed the first stepper board (12v to logic supply), I then programmed it via a attiny usbtinyisp programmer.
+
+My code uses a delayMicroseconds calibrated for a 20mhz uC; you will need to use a different one if your crystal value differs. A link is provided in source to Paul Stoffregen's code, which can deal with clocks of 1mhz, 2mhz, 4 mhz, 8mhz, and 16mhz.

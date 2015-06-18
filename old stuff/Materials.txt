@@ -1,0 +1,48 @@
+Tools used:
+
+Drill press & bits
+Dremel
+Heat gun (to melt together & bend plastic)
+Tin snips (to cut mecanno strips)
+Hacksaw
+Calipers (important)
+Screwdrivers
+JB weld, Superglue
+Soldering iron & accessories
+
+Already had:
+
+Attiny85 microcontroller (1.3$/per)
+Stepper motor and worm drive (src: old HP printer)
+Some mecanno-type metal pieces and machine screws
+Meade ETX-70 tripod
+Beat up radioshack breadboard
+20mhz crystal & caps
+7805
+Penny
+Big ass pan axis pivot bolt and washers
+3/8in ball mount bolt
+misc hardware (mostly small wood screws)
+Compass
+Brick
+Small hinge
+Milk jugs
+Remote components (attiny, transistor, IR leds, switches)
+
+Bought:
+
+58$ 9x50mm Orion finderscope
+http://www.amazon.com/gp/product/B000ARP6RU/
+	Way overkill for this, but I wanted to have it in the future, and it turns out it's a nice little scope for messing around, too.
+	
+12$ Polou A4988 Stepper driver
+http://www.amazon.com/A4988-Stepper-Motor-Driver/dp/B007MX9LVW/ref=sr_1_2?ie=UTF8&qid=1390376892&sr=8-2&keywords=A4988
+	
+17$ Ball Mount
+http://www.amazon.com/gp/product/B0047FCQL0/
+
+10$ 7ah 12v Lead acid battery
+3$ 3ft 1/4in-20 threaded rod
+5$ 1x6in wood, 6 ft
+10$ misc hardware
+8$ Piano hinge, 1ft
